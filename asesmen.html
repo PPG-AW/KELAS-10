@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0,
+    viewport-fit=cover">
+  <meta name="theme-color" content="#1565C0">
+  <title>Asesmen Diagnostik</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .soal-counter {
+      position: sticky;
+      top: 57px;
+      background: var(--white);
+      z-index: 50;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      margin: 0 -16px 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-sub">Asesmen Diagnostik</div>
+    <div class="header-title" id="headerP">-</div>
+  </div>
+  <button class="btn-back"
+    onclick="konfirmasiKeluar()">
+    Kembali
+  </button>
+</div>
+
+<div class="container" id="konten">
+  <div class="loading" style="margin-top:40px">
+    <div class="spinner"></div>
+    <div class="loading-text">Memuat soal...</div>
+  </div>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/main.js"></script>
+<script>
+
+if (!APP.requireLogin()) {};
+const nama = APP.getSiswa();
+const pertemuan = APP.getPertemuan() || 1;
+
+const SOAL = {
+  1: [
+    { soal: 'Hasil dari 3 &times; 3 &times; 3 &times; 3 adalah ...',
+      opsi: ['3 + 4','3 &times; 4','3<sup>4</sup>','4<sup>3</sup>'],
+      kunci: 'C' },
+    { soal: 'Pada bilangan berpangkat 7<sup>5</sup>, yang disebut basis adalah ...',
+      opsi: ['7','5','35','75'],
+      kunci: 'A' },
+    { soal: 'Pada bilangan berpangkat 7<sup>5</sup>, yang disebut eksponen adalah ...',
+      opsi: ['7','5','35','75'],
+      kunci: 'B' },
+    { soal: 'Nilai dari 2<sup>5</sup> adalah ...',
+      opsi: ['10','16','25','32'],
+      kunci: 'D' },
+    { soal: 'Bentuk berpangkat dari 5 &times; 5 &times; 5 adalah ...',
+      opsi: ['3<sup>5</sup>','5<sup>3</sup>','5 &times; 3','15'],
+      kunci: 'B' },
+    { soal: 'Nilai dari 4<sup>3</sup> adalah ...',
+      opsi: ['12','16','64','81'],
+      kunci: 'C' },
+    { soal: 'Bentuk berpangkat dari a &times; a &times; a &times; a &times; a adalah ...',
+      opsi: ['a<sup>4</sup>','5a','a<sup>5</sup>','5<sup>a</sup>'],
+      kunci: 'C' },
+    { soal: 'Sebuah persegi memiliki sisi 6 cm. Luasnya dapat ditulis sebagai ...',
+      opsi: ['6 &times; 2','2<sup>6</sup>','6<sup>2</sup>','2 &times; 6'],
+      kunci: 'C' },
+    { soal: 'Nilai dari (&minus;2)<sup>3</sup> adalah ...',
+      opsi: ['&minus;8','8','&minus;6','6'],
+      kunci: 'A' },
+    { soal: 'Jika a<sup>n</sup> = a &times; a &times; ... &times; a sebanyak n kali, maka 10<sup>2</sup> = ...',
+      opsi: ['20','100','1000','12'],
+      kunci: 'B' }
+  ],
+  2: [
+    { soal: 'Nilai dari 2<sup>3</sup> &times; 2<sup>4</sup> adalah ...',
+      opsi: ['2<sup>7</sup>','2<sup>12</sup>','4<sup>7</sup>','2<sup>1</sup>'],
+      kunci: 'A' },
+    { soal: 'Hasil dari a<sup>5</sup> &times; a<sup>3</sup> adalah ...',
+      opsi: ['a<sup>15</sup>','a<sup>8</sup>','a<sup>2</sup>','2a<sup>8</sup>'],
+      kunci: 'B' },
+    { soal: 'Hasil dari 3<sup>7</sup> &divide; 3<sup>2</sup> adalah ...',
+      opsi: ['3<sup>5</sup>','3<sup>9</sup>','1<sup>5</sup>','3<sup>14</sup>'],
+      kunci: 'A' },
+    { soal: 'Hasil dari x<sup>6</sup> &divide; x<sup>2</sup> adalah ...',
+      opsi: ['x<sup>3</sup>','x<sup>8</sup>','x<sup>4</sup>','x<sup>12</sup>'],
+      kunci: 'C' },
+    { soal: 'Hasil dari (2<sup>3</sup>)<sup>4</sup> adalah ...',
+      opsi: ['2<sup>7</sup>','2<sup>12</sup>','2<sup>43</sup>','8<sup>4</sup>'],
+      kunci: 'B' },
+    { soal: 'Hasil dari (a<sup>2</sup>)<sup>5</sup> adalah ...',
+      opsi: ['a<sup>7</sup>','a<sup>3</sup>','a<sup>10</sup>','2a<sup>5</sup>'],
+      kunci: 'C' },
+    { soal: 'Hasil dari (2 &times; 3)<sup>4</sup> adalah ...',
+      opsi: ['2<sup>4</sup> + 3<sup>4</sup>','2<sup>4</sup> &times; 3<sup>4</sup>','6<sup>8</sup>','2 &times; 3<sup>4</sup>'],
+      kunci: 'B' },
+    { soal: 'Hasil dari (a/b)<sup>3</sup> adalah ...',
+      opsi: ['a<sup>3</sup> + b<sup>3</sup>','a<sup>3</sup> &minus; b<sup>3</sup>','a/b<sup>3</sup>','a<sup>3</sup>/b<sup>3</sup>'],
+      kunci: 'D' },
+    { soal: 'Sederhanakan a<sup>3</sup> &times; a<sup>4</sup> &divide; a<sup>2</sup> ...',
+      opsi: ['a<sup>5</sup>','a<sup>9</sup>','a<sup>24</sup>','a<sup>1</sup>'],
+      kunci: 'A' },
+    { soal: 'Hasil dari (2a<sup>2</sup>)<sup>3</sup> adalah ...',
+      opsi: ['2a<sup>6</sup>','6a<sup>6</sup>','8a<sup>6</sup>','8a<sup>5</sup>'],
+      kunci: 'C' }
+  ],
+  3: [
+    { soal: 'Nilai dari 5<sup>0</sup> adalah ...',
+      opsi: ['0','1','5','50'],
+      kunci: 'B' },
+    { soal: 'Nilai dari (&minus;7)<sup>0</sup> adalah ...',
+      opsi: ['&minus;7','&minus;1','0','1'],
+      kunci: 'D' },
+    { soal: 'Nilai dari 2<sup>&minus;3</sup> adalah ...',
+      opsi: ['&minus;8','&minus;6','1/8','1/6'],
+      kunci: 'C' },
+    { soal: 'Nilai dari 3<sup>&minus;2</sup> adalah ...',
+      opsi: ['&minus;9','&minus;6','1/6','1/9'],
+      kunci: 'D' },
+    { soal: 'Bentuk sederhana dari 1/4<sup>2</sup> adalah ...',
+      opsi: ['4<sup>2</sup>','4<sup>&minus;2</sup>','&minus;4<sup>2</sup>','2<sup>&minus;4</sup>'],
+      kunci: 'B' },
+    { soal: 'Hasil dari a<sup>&minus;4</sup> &times; a<sup>6</sup> adalah ...',
+      opsi: ['a<sup>&minus;24</sup>','a<sup>2</sup>','a<sup>&minus;2</sup>','a<sup>10</sup>'],
+      kunci: 'B' },
+    { soal: 'Hasil dari b<sup>3</sup> &divide; b<sup>5</sup> adalah ...',
+      opsi: ['b<sup>2</sup>','b<sup>8</sup>','b<sup>&minus;2</sup>','b<sup>15</sup>'],
+      kunci: 'C' },
+    { soal: 'Bentuk positif dari x<sup>&minus;3</sup> adalah ...',
+      opsi: ['&minus;x<sup>3</sup>','1/x<sup>3</sup>','x/3','3/x'],
+      kunci: 'B' },
+    { soal: 'Nilai dari 2<sup>&minus;1</sup> + 2<sup>0</sup> adalah ...',
+      opsi: ['1/2','1','3/2','2'],
+      kunci: 'C' },
+    { soal: 'Hasil dari (3a<sup>&minus;2</sup>)<sup>2</sup> adalah ...',
+      opsi: ['9a<sup>4</sup>','9/a<sup>4</sup>','6/a<sup>4</sup>','6a<sup>4</sup>'],
+      kunci: 'B' }
+  ]
+};
+
+const soal = SOAL[pertemuan] || SOAL[1];
+let jawaban = new Array(soal.length).fill('');
+let submitted = false;
+
+window.onload = function() {
+  document.getElementById('headerP').textContent =
+    `Pertemuan ${pertemuan}`;
+  render();
+};
+
+function render() {
+  document.getElementById('konten').innerHTML = `
+
+    <!-- COUNTER STICKY -->
+    <div class="soal-counter">
+      <div class="progress-label">
+        <span class="text-xs text-hint">Progress</span>
+        <span class="text-xs text-bold" id="progText">
+          0/${soal.length} dijawab
+        </span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progFill"
+          style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="alert alert-info">
+      <div class="alert-icon">i</div>
+      <div>
+        <strong>Asesmen Diagnostik P${pertemuan}</strong>
+        &mdash; ${soal.length} soal pilihan ganda.
+        Kerjakan secara mandiri dan jujur.
+      </div>
+    </div>
+
+    <!-- SOAL -->
+    <div id="daftarSoal">
+      ${soal.map((s, i) => `
+        <div class="soal-item" id="soal${i}">
+          <div class="soal-number">
+            Soal ${i+1} dari ${soal.length}
+          </div>
+          <div class="soal-text">${s.soal}</div>
+          <ul class="opsi-list">
+            ${s.opsi.map((o, j) => {
+              const h = ['A','B','C','D'][j];
+              return `
+                <li class="opsi-item">
+                  <input type="radio"
+                    name="s${i}"
+                    id="s${i}o${j}"
+                    value="${h}"
+                    onchange="pilih(${i},'${h}')">
+                  <label class="opsi-label"
+                    for="s${i}o${j}">
+                    <span class="opsi-letter">${h}</span>
+                    <span>${o}</span>
+                  </label>
+                </li>`;
+            }).join('')}
+          </ul>
+        </div>`).join('')}
+    </div>
+
+    <!-- STATUS & SUBMIT -->
+    <div id="statusAsesmen"></div>
+    <button class="btn btn-primary"
+      id="btnSubmit"
+      onclick="submit()"
+      style="margin-bottom:4px">
+      Kumpulkan Jawaban
+    </button>
+    <div class="text-xs text-hint text-center mb-16">
+      Pastikan semua soal sudah dijawab
+    </div>
+    <div class="bottom-space"></div>
+  `;
+}
+
+function pilih(no, huruf) {
+  jawaban[no] = huruf;
+  updateProgress();
+}
+
+function updateProgress() {
+  const d = jawaban.filter(j => j).length;
+  const pct = (d / soal.length) * 100;
+  document.getElementById('progText').textContent =
+    `${d}/${soal.length} dijawab`;
+  document.getElementById('progFill').style.width =
+    `${pct}%`;
+}
+
+async function submit() {
+  if (submitted) return;
+
+  const belum = jawaban.filter(j => !j).length;
+  if (belum > 0) {
+    if (!confirm(
+      `Masih ada ${belum} soal belum dijawab.\n` +
+      `Tetap kumpulkan?`)) return;
+  }
+
+  submitted = true;
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = 'Mengirim...';
+
+  APP.showLoading('statusAsesmen', 'Mengirim jawaban...');
+
+  const res = await API.simpanAsesmen(
+    nama, pertemuan, jawaban);
+
+  if (res.status === 'success') {
+    const { skor, level, levelKeterangan, jadwal }
+      = res.data;
+    APP.setLevel(level);
+
+    const lv = CONFIG.LEVEL[level];
+    const pct = Math.round(skor);
+
+    document.getElementById('daftarSoal')
+      .style.display = 'none';
+    btn.style.display = 'none';
+
+    document.getElementById('statusAsesmen')
+      .innerHTML = `
+        <div class="result-card"
+          style="border-color:${lv?.warna};
+            margin-top:12px">
+          <div class="result-score"
+            style="color:${lv?.warna}">
+            ${skor}
+          </div>
+          <div class="result-label">Skor Asesmen</div>
+
+          <span class="badge"
+            style="background:${lv?.warna}15;
+              color:${lv?.warna};font-size:13px;
+              padding:6px 16px">
+            ${levelKeterangan}
+          </span>
+
+          <div style="margin:16px 0;text-align:left;
+            background:var(--bg);border-radius:
+            var(--radius-sm);padding:14px">
+            <div class="text-xs text-hint mb-8">
+              JADWAL ROTASIMU
+            </div>
+            ${[1,2,3].map(n => `
+              <div style="display:flex;gap:8px;
+                padding:6px 0;border-bottom:
+                1px solid var(--border);
+                font-size:13px">
+                <span class="text-hint">Sesi ${n}</span>
+                <span class="text-bold">
+                  ${jadwal?.[`sesi${n}`] || '-'}
+                </span>
+              </div>`).join('')}
+          </div>
+
+          <button class="btn btn-primary"
+            onclick="APP.goTo('dashboard.html')">
+            Lihat Dashboard
+          </button>
+        </div>
+        <div class="bottom-space"></div>`;
+  } else {
+    APP.showError('statusAsesmen', res.message);
+    submitted = false;
+    btn.disabled = false;
+    btn.textContent = 'Kumpulkan Jawaban';
+  }
+}
+
+function konfirmasiKeluar() {
+  if (jawaban.some(j => j)) {
+    if (!confirm('Jawaban belum dikumpulkan. Yakin keluar?'))
+      return;
+  }
+  APP.goTo('dashboard.html');
+}
+
+</script>
+</body>
+</html>
