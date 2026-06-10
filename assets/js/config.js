@@ -4,7 +4,7 @@
 // ============================================
 
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbwWAiHRQK6EGnbbM6RBMiqCJ6KB91AJqfSSie5kl1GHV4kNMA_BW2Ub-1w8xDqn2GMdvg/exec',
+  API_URL: 'https://script.google.com/macros/s/AKfycbyZh09mfdiMEszzoeJxC-Ul6h0rf3oBlY3GunAypvbWnlQe7yMAq0jRmvADBsGUyTzDMQ/exec',
   
   APP_NAME: 'Bilangan Berpangkat',
   MATA_PELAJARAN: 'Matematika',
