@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" 
+    content="width=device-width, initial-scale=1.0">
+  <title>Refleksi – Bilangan Berpangkat</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="subtitle">Refleksi Belajar</div>
+    <h1 id="headerP">Pertemuan ...</h1>
+  </div>
+  <button class="btn-logout" 
+    onclick="APP.goTo('dashboard.html')">
+    ← Dashboard
+  </button>
+</div>
+
+<div class="container">
+
+  <div class="alert alert-info" style="margin-top:16px">
+    <span>💭</span>
+    Isi refleksi dengan jujur. 
+    Ini membantu gurumu memahami pengalamanmu belajar.
+  </div>
+
+  <div class="card">
+    <div class="card-title">📝 Form Refleksi</div>
+    
+    <!-- P1 -->
+    <div class="form-group">
+      <label>1. Apa yang sudah kamu pahami 
+        dari pembelajaran hari ini?</label>
+      <textarea id="p1" class="form-control" 
+        placeholder="Tulis pemahamanmu..."
+        rows="3"></textarea>
+    </div>
+    
+    <!-- P2 -->
+    <div class="form-group">
+      <label>2. Bagian mana yang masih sulit 
+        atau membingungkan?</label>
+      <textarea id="p2" class="form-control" 
+        placeholder="Tulis kesulitanmu..."
+        rows="3"></textarea>
+    </div>
+    
+    <!-- P3 -->
+    <div class="form-group">
+      <label>3. Apa yang paling membantu 
+        proses belajarmu hari ini?</label>
+      <div id="opsiP3">
+        <div class="refleksi-option" 
+          onclick="pilihP3(this, 'Penjelasan guru')">
+          🟦 Penjelasan guru di stasiun guru
+        </div>
+        <div class="refleksi-option" 
+          onclick="pilihP3(this, 'Materi online')">
+          🟩 Materi dan kuis di website
+        </div>
+        <div class="refleksi-option" 
+          onclick="pilihP3(this, 'LKPD mandiri')">
+          🟧 LKPD mandiri
+        </div>
+        <div class="refleksi-option" 
+          onclick="pilihP3(this, 'Lainnya')">
+          💡 Lainnya
+        </div>
+      </div>
+    </div>
+    
+    <!-- P4 -->
+    <div class="form-group">
+      <label>4. Bagaimana perasaanmu setelah 
+        belajar hari ini?</label>
+      <div id="opsiP4">
+        <div class="refleksi-option" 
+          onclick="pilihP4(this, '😊 Senang dan paham')">
+          😊 Senang dan paham
+        </div>
+        <div class="refleksi-option" 
+          onclick="pilihP4(this, '😐 Cukup paham')">
+          😐 Cukup paham
+        </div>
+        <div class="refleksi-option" 
+          onclick="pilihP4(this, '😕 Masih bingung')">
+          😕 Masih bingung
+        </div>
+        <div class="refleksi-option" 
+          onclick="pilihP4(this, '😟 Belum paham')">
+          😟 Belum paham sama sekali
+        </div>
+      </div>
+    </div>
+    
+    <!-- P5 -->
+    <div class="form-group">
+      <label>5. Apa yang ingin kamu pelajari 
+        lebih lanjut?</label>
+      <textarea id="p5" class="form-control" 
+        placeholder="Tulis keinginanmu..."
+        rows="2"></textarea>
+    </div>
+    
+    <div id="statusRefleksi"></div>
+    
+    <button class="btn btn-primary" 
+      onclick="submitRefleksi()">
+      📤 Kirim Refleksi
+    </button>
+    
+  </div>
+
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/main.js"></script>
+<script>
+
+if (!APP.requireLogin()) {};
+
+const nama = APP.getSiswa();
+const pertemuan = APP.getPertemuan() || 1;
+
+let pilihanP3 = '';
+let pilihanP4 = '';
+
+window.onload = function() {
+  document.getElementById('headerP')
+    .textContent = `Pertemuan ${pertemuan}`;
+};
+
+function pilihP3(el, nilai) {
+  document.querySelectorAll('#opsiP3 .refleksi-option')
+    .forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  pilihanP3 = nilai;
+}
+
+function pilihP4(el, nilai) {
+  document.querySelectorAll('#opsiP4 .refleksi-option')
+    .forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  pilihanP4 = nilai;
+}
+
+async function submitRefleksi() {
+  const data = {
+    yangDipahami: document.getElementById('p1').value,
+    yangMasihSulit: document.getElementById('p2').value,
+    yangMembantu: pilihanP3,
+    perasaan: pilihanP4,
+    inginDipelajari: document.getElementById('p5').value
+  };
+  
+  if (!data.yangDipahami && !data.perasaan) {
+    APP.showToast(
+      'Isi minimal pertanyaan 1 dan 4', 'error'
+    );
+    return;
+  }
+  
+  APP.showLoading('statusRefleksi', 'Menyimpan...');
+  
+  const result = await API.simpanRefleksi(
+    nama, pertemuan, data
+  );
+  
+  if (result.status === 'success') {
+    document.getElementById('statusRefleksi')
+      .innerHTML = `
+        <div class="alert alert-success">
+          ✅ Refleksi berhasil disimpan!
+        </div>
+        <div class="card" style="text-align:center">
+          <div style="font-size:48px">🎊</div>
+          <h3 style="color:#2E7D32;margin:8px 0">
+            Pertemuan ${pertemuan} Selesai!
+          </h3>
+          <p style="color:#666;font-size:14px">
+            Terima kasih sudah belajar dengan sungguh-sungguh.
+          </p>
+          <button class="btn btn-primary" 
+            style="margin-top:16px"
+            onclick="APP.goTo('dashboard.html')">
+            🏠 Kembali ke Dashboard
+          </button>
+        </div>
+      `;
+    
+    // Sembunyikan form
+    document.querySelector('.card:first-of-type')
+      .style.display = 'none';
+      
+  } else {
+    APP.showError('statusRefleksi', result.message);
+  }
+}
+
+</script>
+</body>
+</html>

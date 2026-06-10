@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" 
+    content="width=device-width, initial-scale=1.0">
+  <title>Asesmen – Bilangan Berpangkat</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="subtitle">Asesmen Diagnostik</div>
+    <h1 id="headerPertemuan">Pertemuan ...</h1>
+  </div>
+  <button class="btn-logout" 
+    onclick="APP.goTo('dashboard.html')">
+    ← Kembali
+  </button>
+</div>
+
+<div class="container" id="kontenAsesmen">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <p>Memuat soal...</p>
+  </div>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/main.js"></script>
+<script>
+
+if (!APP.requireLogin()) {};
+
+const nama = APP.getSiswa();
+const pertemuan = APP.getPertemuan() || 1;
+
+// Data soal per pertemuan
+const SOAL = {
+  1: [
+    {
+      soal: 'Hasil dari 3 × 3 × 3 × 3 adalah ...',
+      opsi: ['A. 3 + 4','B. 3 × 4','C. 3⁴','D. 4³'],
+      kunci: 'C'
+    },
+    {
+      soal: 'Pada bilangan berpangkat 7⁵, yang disebut basis adalah ...',
+      opsi: ['A. 7','B. 5','C. 35','D. 75'],
+      kunci: 'A'
+    },
+    {
+      soal: 'Pada bilangan berpangkat 7⁵, yang disebut eksponen adalah ...',
+      opsi: ['A. 7','B. 5','C. 35','D. 75'],
+      kunci: 'B'
+    },
+    {
+      soal: 'Nilai dari 2⁵ adalah ...',
+      opsi: ['A. 10','B. 16','C. 25','D. 32'],
+      kunci: 'D'
+    },
+    {
+      soal: 'Bentuk berpangkat dari 5 × 5 × 5 adalah ...',
+      opsi: ['A. 3⁵','B. 5³','C. 5 × 3','D. 15'],
+      kunci: 'B'
+    },
+    {
+      soal: 'Nilai dari 4³ adalah ...',
+      opsi: ['A. 12','B. 16','C. 64','D. 81'],
+      kunci: 'C'
+    },
+    {
+      soal: 'Bentuk berpangkat dari a × a × a × a × a adalah ...',
+      opsi: ['A. a⁴','B. 5a','C. a⁵','D. 5ᵃ'],
+      kunci: 'C'
+    },
+    {
+      soal: 'Sebuah persegi memiliki sisi 6 cm. Luas persegi dapat ditulis sebagai ...',
+      opsi: ['A. 6 × 2','B. 2⁶','C. 6²','D. 2 × 6'],
+      kunci: 'C'
+    },
+    {
+      soal: 'Nilai dari (–2)³ adalah ...',
+      opsi: ['A. –8','B. 8','C. –6','D. 6'],
+      kunci: 'A'
+    },
+    {
+      soal: 'Jika aⁿ = a × a × ... × a sebanyak n kali, maka 10² = ...',
+      opsi: ['A. 20','B. 100','C. 1000','D. 12'],
+      kunci: 'B'
+    }
+  ],
+  2: [
+    {
+      soal: 'Nilai dari 2³ × 2⁴ adalah ...',
+      opsi: ['A. 2⁷','B. 2¹²','C. 4⁷','D. 2¹'],
+      kunci: 'A'
+    },
+    {
+      soal: 'Hasil dari a⁵ × a³ adalah ...',
+      opsi: ['A. a¹⁵','B. a⁸','C. a²','D. 2a⁸'],
+      kunci: 'B'
+    },
+    {
+      soal: 'Hasil dari 3⁷ ÷ 3² adalah ...',
+      opsi: ['A. 3⁵','B. 3⁹','C. 1⁵','D. 3¹⁴'],
+      kunci: 'A'
+    },
+    {
+      soal: 'Hasil dari x⁶ ÷ x² adalah ...',
+      opsi: ['A. x³','B. x⁸','C. x⁴','D. x¹²'],
+      kunci: 'C'
+    },
+    {
+      soal: 'Hasil dari (2³)⁴ adalah ...',
+      opsi: ['A. 2⁷','B. 2¹²','C. 2⁴³','D. 8⁴'],
+      kunci: 'B'
+    },
+    {
+      soal: 'Hasil dari (a²)⁵ adalah ...',
+      opsi: ['A. a⁷','B. a³','C. a¹⁰','D. 2a⁵'],
+      kunci: 'C'
+    },
+    {
+      soal: 'Hasil dari (2 × 3)⁴ adalah ...',
+      opsi: ['A. 2⁴ + 3⁴','B. 2⁴ × 3⁴','C. 6⁸','D. 2 × 3⁴'],
+      kunci: 'B'
+    },
+    {
+      soal: 'Hasil dari (a/b)³ adalah ...',
+      opsi: ['A. a³ + b³','B. a³ – b³','C. a/b³','D. a³/b³'],
+      kunci: 'D'
+    },
+    {
+      soal: 'Sederhanakan a³ × a⁴ ÷ a² ...',
+      opsi: ['A. a⁵','B. a⁹','C. a²⁴','D. a¹'],
+      kunci: 'A'
+    },
+    {
+      soal: 'Hasil dari (2a²)³ adalah ...',
+      opsi: ['A. 2a⁶','B. 6a⁶','C. 8a⁶','D. 8a⁵'],
+      kunci: 'C'
+    }
+  ],
+  3: [
+    {
+      soal: 'Nilai dari 5⁰ adalah ...',
+      opsi: ['A. 0','B. 1','C. 5','D. 50'],
+      kunci: 'B'
+    },
+    {
+      soal: 'Nilai dari (–7)⁰ adalah ...',
+      opsi: ['A. –7','B. –1','C. 0','D. 1'],
+      kunci: 'D'
+    },
+    {
+      soal: 'Nilai dari 2⁻³ adalah ...',
+      opsi: ['A. –8','B. –6','C. 1/8','D. 1/6'],
+      kunci: 'C'
+    },
+    {
+      soal: 'Nilai dari 3⁻² adalah ...',
+      opsi: ['A. –9','B. –6','C. 1/6','D. 1/9'],
+      kunci: 'D'
+    },
+    {
+      soal: 'Bentuk sederhana dari 1/4² adalah ...',
+      opsi: ['A. 4²','B. 4⁻²','C. –4²','D. 2⁻⁴'],
+      kunci: 'B'
+    },
+    {
+      soal: 'Hasil dari a⁻⁴ × a⁶ adalah ...',
+      opsi: ['A. a⁻²⁴','B. a²','C. a⁻²','D. a¹⁰'],
+      kunci: 'B'
+    },
+    {
+      soal: 'Hasil dari b³ ÷ b⁵ adalah ...',
+      opsi: ['A. b²','B. b⁸','C. b⁻²','D. b¹⁵'],
+      kunci: 'C'
+    },
+    {
+      soal: 'Bentuk positif dari x⁻³ adalah ...',
+      opsi: ['A. –x³','B. 1/x³','C. x/3','D. 3/x'],
+      kunci: 'B'
+    },
+    {
+      soal: 'Nilai dari 2⁻¹ + 2⁰ adalah ...',
+      opsi: ['A. 1/2','B. 1','C. 3/2','D. 2'],
+      kunci: 'C'
+    },
+    {
+      soal: 'Hasil dari (3a⁻²)² adalah ...',
+      opsi: ['A. 9a⁴','B. 9/a⁴','C. 6/a⁴','D. 6a⁴'],
+      kunci: 'B'
+    }
+  ]
+};
+
+const soalAktif = SOAL[pertemuan] || SOAL[1];
+let jawaban = new Array(soalAktif.length).fill('');
+let sudahSubmit = false;
+
+window.onload = function() {
+  document.getElementById('headerPertemuan')
+    .textContent = `Pertemuan ${pertemuan}`;
+  renderSoal();
+};
+
+function renderSoal() {
+  document.getElementById('kontenAsesmen').innerHTML = `
+    
+    <!-- INFO -->
+    <div class="alert alert-info" style="margin-top:16px">
+      <span>ℹ️</span>
+      <div>
+        <strong>Asesmen Diagnostik P${pertemuan}</strong><br>
+        <span style="font-size:12px">
+          ${soalAktif.length} soal pilihan ganda.
+          Kerjakan dengan jujur dan mandiri.
+        </span>
+      </div>
+    </div>
+    
+    <!-- PROGRESS -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;
+        font-size:13px;margin-bottom:6px">
+        <span>Progress</span>
+        <span id="progressText">0/${soalAktif.length} dijawab</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" 
+          style="width:0%"></div>
+      </div>
+    </div>
+    
+    <!-- SOAL -->
+    <div id="daftarSoal">
+      ${soalAktif.map((s, i) => `
+        <div class="soal-card" id="soal-${i}">
+          <div class="soal-number">
+            Soal ${i + 1} dari ${soalAktif.length}
+          </div>
+          <div class="soal-text">${s.soal}</div>
+          <ul class="opsi-list">
+            ${s.opsi.map((o, j) => {
+              const huruf = ['A','B','C','D'][j];
+              return `
+                <li class="opsi-item">
+                  <input type="radio" 
+                    name="soal${i}" 
+                    id="s${i}o${j}" 
+                    value="${huruf}"
+                    onchange="pilihJawaban(${i},'${huruf}')">
+                  <label class="opsi-label" for="s${i}o${j}">
+                    <strong>${huruf}.</strong> 
+                    ${o.substring(3)}
+                  </label>
+                </li>
+              `;
+            }).join('')}
+          </ul>
+        </div>
+      `).join('')}
+    </div>
+    
+    <!-- TOMBOL SUBMIT -->
+    <div id="statusAsesmen"></div>
+    <button 
+      class="btn btn-primary" 
+      id="btnSubmit"
+      onclick="submitAsesmen()"
+      style="margin-bottom:20px">
+      📤 Kumpulkan Jawaban
+    </button>
+  `;
+}
+
+function pilihJawaban(noSoal, huruf) {
+  jawaban[noSoal] = huruf;
+  updateProgress();
+}
+
+function updateProgress() {
+  const dijawab = jawaban.filter(j => j !== '').length;
+  const total = soalAktif.length;
+  const persen = (dijawab / total) * 100;
+  
+  document.getElementById('progressText')
+    .textContent = `${dijawab}/${total} dijawab`;
+  document.getElementById('progressFill')
+    .style.width = `${persen}%`;
+}
+
+async function submitAsesmen() {
+  if (sudahSubmit) return;
+  
+  const dijawab = jawaban.filter(j => j !== '').length;
+  
+  if (dijawab < soalAktif.length) {
+    const sisa = soalAktif.length - dijawab;
+    if (!confirm(
+      `Masih ada ${sisa} soal yang belum dijawab.\n` +
+      `Yakin ingin mengumpulkan?`
+    )) return;
+  }
+  
+  sudahSubmit = true;
+  document.getElementById('btnSubmit').disabled = true;
+  APP.showLoading('statusAsesmen', 
+    'Mengirim jawaban...');
+  
+  const result = await API.simpanAsesmen(
+    nama, pertemuan, jawaban
+  );
+  
+  if (result.status === 'success') {
+    const { skor, level, levelKeterangan, 
+            jadwal } = result.data;
+    
+    APP.setLevel(level);
+    
+    // Tampilkan hasil
+    document.getElementById('statusAsesmen')
+      .innerHTML = `
+        <div class="card" style="border:2px solid 
+          ${CONFIG.LEVEL[level]?.warna};
+          text-align:center;padding:24px">
+          
+          <div style="font-size:48px;margin-bottom:8px">
+            ${skor >= 70 ? '🎉' : skor >= 40 ? '💪' : '📚'}
+          </div>
+          
+          <div style="font-size:32px;font-weight:700;
+            color:${CONFIG.LEVEL[level]?.warna}">
+            ${skor}
+          </div>
+          <div style="color:#666;font-size:14px">
+            Skor Asesmen
+          </div>
+          
+          <div style="margin:16px 0">
+            ${APP.getLevelBadge(level)}
+          </div>
+          
+          <div style="background:#f5f5f5;border-radius:8px;
+            padding:12px;margin:12px 0;font-size:13px">
+            <strong>Jadwal Rotasimu:</strong><br>
+            <div style="margin-top:8px;text-align:left">
+              📌 Sesi 1: ${jadwal?.sesi1 || '-'}<br>
+              📌 Sesi 2: ${jadwal?.sesi2 || '-'}<br>
+              📌 Sesi 3: ${jadwal?.sesi3 || '-'}
+            </div>
+          </div>
+          
+          <button class="btn btn-primary" 
+            onclick="APP.goTo('dashboard.html')"
+            style="margin-top:12px">
+            ✅ Lihat Dashboard
+          </button>
+        </div>
+      `;
+    
+    // Sembunyikan daftar soal dan tombol
+    document.getElementById('daftarSoal')
+      .style.display = 'none';
+    document.getElementById('btnSubmit')
+      .style.display = 'none';
+      
+  } else {
+    APP.showError('statusAsesmen', result.message);
+    sudahSubmit = false;
+    document.getElementById('btnSubmit').disabled = false;
+  }
+}
+
+</script>
+</body>
+</html>

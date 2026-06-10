@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" 
+    content="width=device-width, initial-scale=1.0">
+  <title>Login – Bilangan Berpangkat</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>📐 Bilangan Berpangkat</h1>
+  <p>Matematika Kelas X SMK</p>
+  <p style="font-size:12px;margin-top:4px;opacity:0.7">
+    Individual Rotation Model
+  </p>
+</div>
+
+<!-- KONTEN -->
+<div class="container">
+
+  <!-- CARD LOGIN -->
+  <div class="card" style="margin-top:-20px;
+    border-radius:20px 20px 12px 12px;">
+    
+    <div class="card-title">🔍 Masuk ke Kelas</div>
+    
+    <!-- SEARCH -->
+    <div class="form-group">
+      <label>Cari Namamu:</label>
+      <input 
+        type="text" 
+        id="inputCari"
+        class="form-control"
+        placeholder="Ketik namamu di sini..."
+        autocomplete="off"
+        oninput="handleCari(this.value)"
+      >
+      
+      <!-- Hasil pencarian -->
+      <div class="search-results" id="hasilCari"></div>
+    </div>
+    
+    <!-- Nama yang dipilih -->
+    <div id="namaTerpilih" style="display:none">
+      <div class="alert alert-success">
+        <span>👤</span>
+        <span id="textNamaTerpilih"></span>
+        <button 
+          onclick="batalPilih()" 
+          style="margin-left:auto;background:none;
+            border:none;cursor:pointer;color:inherit">
+          ✕
+        </button>
+      </div>
+      <button 
+        class="btn btn-primary" 
+        onclick="masuk()">
+        🚀 Masuk Sekarang
+      </button>
+    </div>
+    
+    <!-- Divider -->
+    <div style="text-align:center;color:#999;
+      font-size:13px;margin:16px 0">
+      ─── atau ───
+    </div>
+    
+    <!-- DAFTAR BARU -->
+    <div class="form-group">
+      <label>Belum terdaftar? Daftar di sini:</label>
+      <input 
+        type="text" 
+        id="inputDaftar"
+        class="form-control"
+        placeholder="Masukkan nama lengkap..."
+        maxlength="50"
+      >
+    </div>
+    
+    <button 
+      class="btn btn-secondary" 
+      onclick="daftar()">
+      ✏️ Daftar Sekarang
+    </button>
+    
+    <!-- Status -->
+    <div id="statusLogin" style="margin-top:12px"></div>
+    
+  </div>
+  
+  <!-- INFO -->
+  <div class="card">
+    <div class="card-title">ℹ️ Informasi</div>
+    <div style="font-size:13px;color:#555;
+      line-height:1.8">
+      <p>📚 <strong>Mata Pelajaran:</strong> Matematika</p>
+      <p>🏫 <strong>Kelas:</strong> X SMK</p>
+      <p>📖 <strong>Materi:</strong> Bilangan Berpangkat</p>
+      <p>🎯 <strong>KKTP:</strong> 78</p>
+    </div>
+  </div>
+  
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/main.js"></script>
+<script>
+
+// Cek jika sudah login
+window.onload = function() {
+  const nama = APP.getSiswa();
+  if (nama) {
+    APP.goTo('dashboard.html');
+  }
+};
+
+let namaTerpilih = '';
+let debounceTimer;
+
+// Handle input pencarian
+async function handleCari(value) {
+  clearTimeout(debounceTimer);
+  batalPilih();
+  
+  const hasilEl = document.getElementById('hasilCari');
+  
+  if (value.length < 2) {
+    hasilEl.classList.remove('show');
+    hasilEl.innerHTML = '';
+    return;
+  }
+  
+  debounceTimer = setTimeout(async () => {
+    hasilEl.innerHTML = `
+      <div class="search-item" style="color:#999">
+        🔍 Mencari...
+      </div>
+    `;
+    hasilEl.classList.add('show');
+    
+    const result = await API.cariSiswa(value);
+    
+    if (result.status === 'success' && result.data.length > 0) {
+      hasilEl.innerHTML = result.data.map(s => `
+        <div class="search-item" 
+          onclick="pilihSiswa('${s.nama}')">
+          👤 ${s.nama}
+        </div>
+      `).join('');
+    } else {
+      hasilEl.innerHTML = `
+        <div class="search-item" style="color:#999">
+          😔 Nama tidak ditemukan. 
+          Silakan daftar di bawah.
+        </div>
+      `;
+    }
+  }, 400);
+}
+
+// Pilih siswa dari hasil pencarian
+function pilihSiswa(nama) {
+  namaTerpilih = nama;
+  document.getElementById('inputCari').value = nama;
+  document.getElementById('hasilCari')
+    .classList.remove('show');
+  
+  document.getElementById('textNamaTerpilih')
+    .textContent = `Halo, ${nama}! 👋`;
+  document.getElementById('namaTerpilih')
+    .style.display = 'block';
+}
+
+// Batal pilih
+function batalPilih() {
+  namaTerpilih = '';
+  document.getElementById('namaTerpilih')
+    .style.display = 'none';
+}
+
+// Masuk
+async function masuk() {
+  if (!namaTerpilih) {
+    APP.showToast('Pilih nama terlebih dahulu!', 'error');
+    return;
+  }
+  
+  APP.showLoading('statusLogin', 'Masuk...');
+  APP.setSiswa(namaTerpilih);
+  APP.goTo('dashboard.html');
+}
+
+// Daftar baru
+async function daftar() {
+  const nama = document.getElementById('inputDaftar')
+    .value.trim();
+  
+  if (!nama || nama.length < 3) {
+    APP.showError('statusLogin', 
+      'Nama minimal 3 karakter');
+    return;
+  }
+  
+  APP.showLoading('statusLogin', 'Mendaftar...');
+  
+  const result = await API.daftarSiswa(nama);
+  
+  if (result.status === 'success' || 
+      result.status === 'exists') {
+    APP.showSuccess('statusLogin', 
+      `✅ ${result.message}`);
+    
+    setTimeout(() => {
+      APP.setSiswa(nama);
+      APP.goTo('dashboard.html');
+    }, 1000);
+  } else {
+    APP.showError('statusLogin', result.message);
+  }
+}
+
+// Tutup hasil pencarian saat klik luar
+document.addEventListener('click', function(e) {
+  const hasilEl = document.getElementById('hasilCari');
+  if (!e.target.closest('#inputCari') && 
+      !e.target.closest('#hasilCari')) {
+    hasilEl.classList.remove('show');
+  }
+});
+
+</script>
+</body>
+</html>

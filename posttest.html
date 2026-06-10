@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" 
+    content="width=device-width, initial-scale=1.0">
+  <title>Post-test – Bilangan Berpangkat</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="subtitle">Post-test</div>
+    <h1 id="headerPertemuan">Pertemuan ...</h1>
+  </div>
+  <button class="btn-logout" 
+    onclick="APP.goTo('dashboard.html')">
+    ← Kembali
+  </button>
+</div>
+
+<div class="container" id="kontenPostTest">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <p>Memuat soal...</p>
+  </div>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/main.js"></script>
+<script>
+
+if (!APP.requireLogin()) {};
+
+const nama = APP.getSiswa();
+const pertemuan = APP.getPertemuan() || 1;
+
+const SOAL_POSTTEST = {
+  1: [
+    {
+      soal: 'Bentuk berpangkat dari 7 × 7 × 7 × 7 adalah ...',
+      opsi: ['A. 4⁷','B. 7 × 4','C. 7⁴','D. 28'],
+      kunci: 'C'
+    },
+    {
+      soal: 'Nilai dari 3⁴ adalah ...',
+      opsi: ['A. 12','B. 64','C. 81','D. 34'],
+      kunci: 'C'
+    },
+    {
+      soal: 'Pada bilangan berpangkat 8⁶, basis dan eksponenya berturut-turut adalah ...',
+      opsi: ['A. 6 dan 8','B. 8 dan 6','C. 48 dan 6','D. 8 dan 48'],
+      kunci: 'B'
+    },
+    {
+      soal: 'Nilai dari (–3)⁴ adalah ...',
+      opsi: ['A. –81','B. –12','C. 12','D. 81'],
+      kunci: 'D'
+    },
+    {
+      soal: 'Sebuah kubus memiliki panjang rusuk 5 cm. Volume kubus dapat ditulis sebagai ...',
+      opsi: ['A. 5 × 3','B. 3⁵','C. 5²','D. 5³'],
+      kunci: 'D'
+    }
+  ],
+  2: [
+    {
+      soal: 'Hasil dari 5³ × 5⁴ adalah ...',
+      opsi: ['A. 5⁷','B. 5¹²','C. 25⁷','D. 5¹'],
+      kunci: 'A'
+    },
+    {
+      soal: 'Hasil dari x⁸ ÷ x³ adalah ...',
+      opsi: ['A. x¹¹','B. x²⁴','C. x⁵','D. x²'],
+      kunci: 'C'
+    },
+    {
+      soal: 'Hasil dari (3²)⁴ adalah ...',
+      opsi: ['A. 3⁶','B. 3⁸','C. 3²','D. 3¹⁶'],
+      kunci: 'B'
+    },
+    {
+      soal: 'Hasil dari (2x³)⁴ adalah ...',
+      opsi: ['A. 8x¹²','B. 16x⁷','C. 8x⁷','D. 16x¹²'],
+      kunci: 'D'
+    },
+    {
+      soal: 'Bentuk sederhana dari a⁴ × a³ ÷ a² adalah ...',
+      opsi: ['A. a⁵','B. a⁹','C. a²⁴','D. a³'],
+      kunci: 'A'
+    }
+  ],
+  3: [
+    {
+      soal: 'Nilai dari 9⁰ adalah ...',
+      opsi: ['A. 0','B. 9','C. 1','D. 90'],
+      kunci: 'C'
+    },
+    {
+      soal: 'Nilai dari 4⁻² adalah ...',
+      opsi: ['A. –16','B. –8','C. 1/8','D. 1/16'],
+      kunci: 'D'
+    },
+    {
+      soal: 'Bentuk positif dari 3x⁻⁴ adalah ...',
+      opsi: ['A. 3/x⁴','B. –3x⁴','C. x⁴/3','D. 3x⁴'],
+      kunci: 'A'
+    },
+    {
+      soal: 'Hasil dari a⁻³ × a⁵ adalah ...',
+      opsi: ['A. a⁻¹⁵','B. a⁻²','C. a²','D. a⁸'],
+      kunci: 'C'
+    },
+    {
+      soal: 'Hasil dari (2a⁻²)³ adalah ...',
+      opsi: ['A. 8/a⁶','B. 6/a⁶','C. 8/a⁵','D. 6/a⁵'],
+      kunci: 'A'
+    }
+  ]
+};
+
+const soalAktif = SOAL_POSTTEST[pertemuan] || [];
+let jawaban = new Array(soalAktif.length).fill('');
+let sudahSubmit = false;
+
+window.onload = function() {
+  document.getElementById('headerPertemuan')
+    .textContent = `Pertemuan ${pertemuan}`;
+  renderSoal();
+};
+
+function renderSoal() {
+  document.getElementById('kontenPostTest')
+    .innerHTML = `
+    
+    <div class="alert alert-warning" 
+      style="margin-top:16px">
+      <span>⚠️</span>
+      <div>
+        <strong>Post-test P${pertemuan}</strong><br>
+        <span style="font-size:12px">
+          ${soalAktif.length} soal. 
+          KKTP: ${CONFIG.KKTP}. 
+          Kerjakan secara mandiri.
+        </span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;
+        font-size:13px;margin-bottom:6px">
+        <span>Progress</span>
+        <span id="progressText">
+          0/${soalAktif.length} dijawab
+        </span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" 
+          style="width:0%"></div>
+      </div>
+    </div>
+    
+    <div id="daftarSoal">
+      ${soalAktif.map((s, i) => `
+        <div class="soal-card">
+          <div class="soal-number">
+            Soal ${i + 1} dari ${soalAktif.length}
+          </div>
+          <div class="soal-text">${s.soal}</div>
+          <ul class="opsi-list">
+            ${s.opsi.map((o, j) => {
+              const huruf = ['A','B','C','D'][j];
+              return `
+                <li class="opsi-item">
+                  <input type="radio" 
+                    name="soal${i}" 
+                    id="pt${i}o${j}" 
+                    value="${huruf}"
+                    onchange="pilihJawaban(
+                      ${i},'${huruf}')">
+                  <label class="opsi-label" 
+                    for="pt${i}o${j}">
+                    <strong>${huruf}.</strong> 
+                    ${o.substring(3)}
+                  </label>
+                </li>
+              `;
+            }).join('')}
+          </ul>
+        </div>
+      `).join('')}
+    </div>
+    
+    <div id="statusPostTest"></div>
+    <button class="btn btn-primary" 
+      id="btnSubmit"
+      onclick="submitPostTest()"
+      style="margin-bottom:20px">
+      📤 Kumpulkan Post-test
+    </button>
+  `;
+}
+
+function pilihJawaban(no, huruf) {
+  jawaban[no] = huruf;
+  const dijawab = jawaban.filter(j => j !== '').length;
+  const persen = (dijawab / soalAktif.length) * 100;
+  document.getElementById('progressText')
+    .textContent = `${dijawab}/${soalAktif.length} dijawab`;
+  document.getElementById('progressFill')
+    .style.width = `${persen}%`;
+}
+
+async function submitPostTest() {
+  if (sudahSubmit) return;
+  
+  const dijawab = jawaban.filter(j => j !== '').length;
+  if (dijawab < soalAktif.length) {
+    if (!confirm(
+      `Masih ada ${soalAktif.length - dijawab} soal ` +
+      `yang belum dijawab. Tetap kumpulkan?`
+    )) return;
+  }
+  
+  sudahSubmit = true;
+  document.getElementById('btnSubmit').disabled = true;
+  APP.showLoading('statusPostTest', 'Mengirim...');
+  
+  const result = await API.simpanPostTest(
+    nama, pertemuan, jawaban
+  );
+  
+  if (result.status === 'success') {
+    const { skor, tuntas, kktp, detail } = result.data;
+    
+    document.getElementById('daftarSoal')
+      .style.display = 'none';
+    document.getElementById('btnSubmit')
+      .style.display = 'none';
+    
+    document.getElementById('statusPostTest')
+      .innerHTML = `
+        <div class="card" style="text-align:center;
+          border:3px solid ${
+            tuntas === 'Ya' ? '#2E7D32' : '#C62828'
+          }">
+          
+          <div style="font-size:48px;margin-bottom:8px">
+            ${tuntas === 'Ya' ? '🎉' : '💪'}
+          </div>
+          
+          <div style="font-size:40px;font-weight:700;
+            color:${tuntas === 'Ya' ? '#2E7D32' : '#C62828'}">
+            ${skor}
+          </div>
+          <div style="color:#666;margin-bottom:12px">
+            Skor Post-test
+          </div>
+          
+          <div class="badge 
+            ${tuntas === 'Ya' 
+              ? 'badge-success' 
+              : 'badge-error'}" 
+            style="font-size:14px;padding:8px 20px">
+            ${tuntas === 'Ya' 
+              ? '✅ TUNTAS' 
+              : '❌ BELUM TUNTAS'}
+          </div>
+          
+          <div style="font-size:13px;color:#666;
+            margin:12px 0">
+            KKTP: ${kktp}
+          </div>
+          
+          <!-- Detail jawaban -->
+          <div style="text-align:left;margin:16px 0">
+            <strong style="font-size:13px">
+              Detail Jawaban:
+            </strong>
+            ${detail.map(d => `
+              <div style="display:flex;gap:8px;
+                padding:6px 0;border-bottom:1px solid #f0f0f0;
+                font-size:13px;align-items:center">
+                <span style="width:60px;color:#666">
+                  Soal ${d.nomor}
+                </span>
+                <span>Jawaban: <strong>${d.jawaban || '-'}</strong></span>
+                <span>Kunci: <strong>${d.kunci}</strong></span>
+                <span style="margin-left:auto">
+                  ${d.benar ? '✅' : '❌'}
+                </span>
+              </div>
+            `).join('')}
+          </div>
+          
+          <button class="btn btn-primary" 
+            onclick="APP.goTo('refleksi.html')"
+            style="margin-top:8px">
+            ➡ Lanjut ke Refleksi
+          </button>
+        </div>
+      `;
+  } else {
+    APP.showError('statusPostTest', result.message);
+    sudahSubmit = false;
+    document.getElementById('btnSubmit').disabled = false;
+  }
+}
+
+</script>
+</body>
+</html>

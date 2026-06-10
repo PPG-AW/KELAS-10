@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" 
+    content="width=device-width, initial-scale=1.0">
+  <title>Dashboard – Bilangan Berpangkat</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="subtitle">Bilangan Berpangkat</div>
+    <h1 id="headerNama">...</h1>
+  </div>
+  <button class="btn-logout" onclick="APP.logout()">
+    Keluar
+  </button>
+</div>
+
+<!-- KONTEN -->
+<div class="container" id="kontenDashboard">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <p>Memuat dashboard...</p>
+  </div>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/main.js"></script>
+<script>
+
+const nama = APP.getSiswa();
+
+window.onload = async function() {
+  if (!APP.requireLogin()) return;
+  
+  document.getElementById('headerNama')
+    .textContent = nama;
+  
+  await loadDashboard();
+};
+
+async function loadDashboard() {
+  const result = await API.getDashboard(nama);
+  
+  if (result.status !== 'success') {
+    document.getElementById('kontenDashboard')
+      .innerHTML = `
+        <div class="alert alert-error">
+          ${result.message}
+        </div>
+        <button class="btn btn-primary" 
+          onclick="loadDashboard()">
+          🔄 Coba Lagi
+        </button>
+      `;
+    return;
+  }
+  
+  const { siswa, pengaturan, progress, 
+          jadwalAktif, langkahSelanjutnya } = result.data;
+  
+  // Simpan pertemuan aktif
+  APP.setPertemuan(pengaturan.pertemuanAktif);
+  if (jadwalAktif) {
+    APP.setLevel(jadwalAktif.level);
+  }
+  
+  // Render dashboard
+  document.getElementById('kontenDashboard')
+    .innerHTML = renderDashboard(
+      siswa, pengaturan, progress, 
+      jadwalAktif, langkahSelanjutnya
+    );
+}
+
+function renderDashboard(siswa, peng, prog, 
+                          jadwal, langkah) {
+  const p = parseInt(peng.pertemuanAktif) || 0;
+  
+  // Status pertemuan
+  const statusP1 = getStatusIcon(prog.P1);
+  const statusP2 = getStatusIcon(prog.P2);
+  const statusP3 = getStatusIcon(prog.P3);
+  
+  return `
+    <!-- SELAMAT DATANG -->
+    <div class="card" style="background:linear-gradient(
+      135deg,#1565C0,#1976D2);color:white;
+      margin-top:16px">
+      <div style="font-size:24px;margin-bottom:4px">
+        👋 Halo, ${siswa.nama}!
+      </div>
+      <div style="font-size:13px;opacity:0.85">
+        Matematika X SMK – Bilangan Berpangkat
+      </div>
+      ${jadwal ? `
+        <div style="margin-top:12px;
+          background:rgba(255,255,255,0.2);
+          border-radius:8px;padding:10px">
+          <div style="font-size:12px;opacity:0.8">
+            Level Saat Ini
+          </div>
+          <div style="font-size:16px;font-weight:700">
+            ⭐ Level ${jadwal.level} – 
+            ${CONFIG.LEVEL[jadwal.level]?.nama || ''}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+    
+    <!-- LANGKAH SELANJUTNYA -->
+    ${renderLangkah(langkah, p)}
+    
+    <!-- PERTEMUAN STATUS -->
+    <div class="card">
+      <div class="card-title">📅 Status Pertemuan</div>
+      
+      ${renderStatusPertemuan(1, peng.statusP1, 
+        prog.P1, siswa, p)}
+      ${renderStatusPertemuan(2, peng.statusP2, 
+        prog.P2, siswa, p)}
+      ${renderStatusPertemuan(3, peng.statusP3, 
+        prog.P3, siswa, p)}
+    </div>
+    
+    <!-- JADWAL AKTIF -->
+    ${jadwal && p > 0 ? renderJadwal(jadwal, prog, p) : ''}
+    
+    <!-- HASIL BELAJAR -->
+    <div class="card">
+      <div class="card-title">📊 Rekap Hasil Belajar</div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-number" 
+            style="color:${getWarnaSkor(siswa.skorPostTestP1)}">
+            ${siswa.skorPostTestP1 || '-'}
+          </div>
+          <div class="stat-label">Post-test P1</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number"
+            style="color:${getWarnaSkor(siswa.skorPostTestP2)}">
+            ${siswa.skorPostTestP2 || '-'}
+          </div>
+          <div class="stat-label">Post-test P2</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number"
+            style="color:${getWarnaSkor(siswa.skorPostTestP3)}">
+            ${siswa.skorPostTestP3 || '-'}
+          </div>
+          <div class="stat-label">Post-test P3</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#999;
+        text-align:center">
+        KKTP: ${peng.kktp} 
+        (Tuntas jika ≥ ${peng.kktp})
+      </div>
+    </div>
+    
+    <!-- REFRESH -->
+    <button class="btn btn-secondary" 
+      onclick="loadDashboard()" 
+      style="margin-bottom:20px">
+      🔄 Perbarui Dashboard
+    </button>
+  `;
+}
+
+function renderLangkah(langkah, p) {
+  if (!langkah) return '';
+  
+  const warna = {
+    'tunggu' : '#FF8F00',
+    'selesai': '#2E7D32',
+    'asesmen': '#1565C0',
+    'sesi1'  : '#1565C0',
+    'sesi2'  : '#1565C0',
+    'sesi3'  : '#1565C0',
+    'posttest': '#6A1B9A',
+    'refleksi': '#00695C'
+  };
+  
+  const w = warna[langkah.aksi] || '#1565C0';
+  
+  let tombol = '';
+  if (langkah.url && langkah.aksi !== 'tunggu' && 
+      langkah.aksi !== 'selesai') {
+    tombol = `
+      <button class="btn btn-primary" 
+        style="margin-top:12px;background:${w}"
+        onclick="APP.goTo('${langkah.url}')">
+        ▶ Mulai Sekarang
+      </button>
+    `;
+  }
+  
+  return `
+    <div class="card" 
+      style="border:2px solid ${w};
+        background:${w}15">
+      <div style="color:${w};font-weight:700;
+        font-size:13px;margin-bottom:6px">
+        🎯 LANGKAH SELANJUTNYA
+      </div>
+      <div style="font-size:15px;font-weight:600">
+        ${langkah.pesan}
+      </div>
+      ${tombol}
+    </div>
+  `;
+}
+
+function renderStatusPertemuan(no, status, prog, siswa, aktif) {
+  const nama_p = CONFIG.PERTEMUAN[no];
+  const isAktif = parseInt(aktif) === no;
+  const isSelesai = prog && prog.selesai === 'Ya';
+  
+  let warna = '#e0e0e0';
+  let icon = '🔒';
+  
+  if (isSelesai) { warna = '#2E7D32'; icon = '✅'; }
+  else if (isAktif && status === 'Buka') { 
+    warna = '#1565C0'; icon = '🔄'; 
+  }
+  else if (status === 'Buka') { 
+    warna = '#FF8F00'; icon = '📖'; 
+  }
+  
+  return `
+    <div style="display:flex;align-items:center;
+      gap:12px;padding:12px;border-radius:8px;
+      border:2px solid ${warna}15;
+      background:${warna}10;margin-bottom:8px">
+      <div style="font-size:24px">${icon}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px;
+          color:${warna}">
+          Pertemuan ${no}
+        </div>
+        <div style="font-size:12px;color:#666">
+          ${nama_p}
+        </div>
+        ${prog ? `
+          <div style="font-size:11px;color:#999;
+            margin-top:2px">
+            Post-test: ${
+              siswa[`skorPostTestP${no}`] || 'Belum'
+            }
+          </div>
+        ` : ''}
+      </div>
+      <div>
+        ${status === 'Tutup' && !isSelesai
+          ? '<span style="font-size:11px;color:#999">Terkunci</span>'
+          : isSelesai
+            ? '<span class="badge badge-success">Selesai</span>'
+            : isAktif
+              ? '<span class="badge badge-primary">Aktif</span>'
+              : '<span class="badge badge-warning">Tersedia</span>'
+        }
+      </div>
+    </div>
+  `;
+}
+
+function renderJadwal(jadwal, prog, p) {
+  const progP = prog[`P${p}`];
+  
+  const sesiData = [
+    { no: 1, nama: jadwal.sesi1, 
+      status: progP?.statusSesi1 || 'Belum' },
+    { no: 2, nama: jadwal.sesi2, 
+      status: progP?.statusSesi2 || 'Belum' },
+    { no: 3, nama: jadwal.sesi3, 
+      status: progP?.statusSesi3 || 'Belum' }
+  ];
+  
+  // Tentukan sesi aktif (sesi pertama yang belum selesai)
+  const sesiAktif = sesiData.find(
+    s => s.status !== 'Selesai'
+  );
+  
+  return `
+    <div class="card">
+      <div class="card-title">
+        🗓️ Jadwal Rotasi – Pertemuan ${p}
+      </div>
+      <div style="font-size:12px;color:#666;
+        margin-bottom:12px">
+        ${CONFIG.PERTEMUAN[p]}
+      </div>
+      
+      ${sesiData.map(s => `
+        <div class="sesi-card 
+          ${s.status === 'Selesai' ? 'selesai' : 
+            sesiAktif?.no === s.no ? 'aktif' : ''}">
+          <div class="sesi-card-header">
+            <span class="sesi-number">SESI ${s.no}</span>
+            ${APP.getStatusBadge(s.status)}
+          </div>
+          <div class="sesi-name">${s.nama}</div>
+          ${sesiAktif?.no === s.no && 
+            s.status !== 'Selesai' &&
+            !s.nama.includes('Guru') ? `
+            <button class="btn btn-primary btn-sm" 
+              style="margin-top:10px;width:auto"
+              onclick="mulaiSesi(${s.no}, '${s.nama}')">
+              ▶ Mulai Sesi ${s.no}
+            </button>
+          ` : ''}
+          ${s.nama.includes('Guru') && 
+            s.status !== 'Selesai' ? `
+            <div style="font-size:12px;color:#666;
+              margin-top:8px">
+              🟦 Datang ke meja guru
+            </div>
+          ` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function mulaiSesi(no, nama) {
+  const p = APP.getPertemuan();
+  
+  if (nama.includes('Online') || 
+      nama.includes('Pengayaan')) {
+    APP.goTo(`materi.html?sesi=${no}`);
+  } else if (nama.includes('LKPD')) {
+    APP.goTo(`lkpd.html?sesi=${no}`);
+  }
+}
+
+function getStatusIcon(prog) {
+  if (!prog) return '🔒';
+  if (prog.selesai === 'Ya') return '✅';
+  if (prog.statusAsesmen === 'Selesai') return '🔄';
+  return '📖';
+}
+
+function getWarnaSkor(skor) {
+  if (!skor || skor === '-') return '#999';
+  return parseInt(skor) >= CONFIG.KKTP 
+    ? '#2E7D32' : '#C62828';
+}
+
+</script>
+</body>
+</html>
