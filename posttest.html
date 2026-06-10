@@ -2,28 +2,41 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" 
-    content="width=device-width, initial-scale=1.0">
-  <title>Post-test – Bilangan Berpangkat</title>
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0,
+    viewport-fit=cover">
+  <meta name="theme-color" content="#1565C0">
+  <title>Post-test</title>
   <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .soal-counter {
+      position: sticky;
+      top: 57px;
+      background: var(--white);
+      z-index: 50;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      margin: 0 -16px 12px;
+    }
+  </style>
 </head>
 <body>
 
 <div class="header">
-  <div>
-    <div class="subtitle">Post-test</div>
-    <h1 id="headerPertemuan">Pertemuan ...</h1>
+  <div class="header-left">
+    <div class="header-sub">Post-test</div>
+    <div class="header-title" id="headerP">-</div>
   </div>
-  <button class="btn-logout" 
-    onclick="APP.goTo('dashboard.html')">
-    ← Kembali
+  <button class="btn-back"
+    onclick="konfirmasiKeluar()">
+    Kembali
   </button>
 </div>
 
-<div class="container" id="kontenPostTest">
-  <div class="loading-box">
+<div class="container" id="konten">
+  <div class="loading" style="margin-top:40px">
     <div class="spinner"></div>
-    <p>Memuat soal...</p>
+    <div class="loading-text">Memuat soal...</div>
   </div>
 </div>
 
@@ -33,280 +46,244 @@
 <script>
 
 if (!APP.requireLogin()) {};
-
 const nama = APP.getSiswa();
 const pertemuan = APP.getPertemuan() || 1;
 
-const SOAL_POSTTEST = {
+const SOAL = {
   1: [
-    {
-      soal: 'Bentuk berpangkat dari 7 × 7 × 7 × 7 adalah ...',
-      opsi: ['A. 4⁷','B. 7 × 4','C. 7⁴','D. 28'],
-      kunci: 'C'
-    },
-    {
-      soal: 'Nilai dari 3⁴ adalah ...',
-      opsi: ['A. 12','B. 64','C. 81','D. 34'],
-      kunci: 'C'
-    },
-    {
-      soal: 'Pada bilangan berpangkat 8⁶, basis dan eksponenya berturut-turut adalah ...',
-      opsi: ['A. 6 dan 8','B. 8 dan 6','C. 48 dan 6','D. 8 dan 48'],
-      kunci: 'B'
-    },
-    {
-      soal: 'Nilai dari (–3)⁴ adalah ...',
-      opsi: ['A. –81','B. –12','C. 12','D. 81'],
-      kunci: 'D'
-    },
-    {
-      soal: 'Sebuah kubus memiliki panjang rusuk 5 cm. Volume kubus dapat ditulis sebagai ...',
-      opsi: ['A. 5 × 3','B. 3⁵','C. 5²','D. 5³'],
-      kunci: 'D'
-    }
+    { soal: 'Bentuk berpangkat dari 7 &times; 7 &times; 7 &times; 7 adalah ...',
+      opsi: ['4<sup>7</sup>','7 &times; 4','7<sup>4</sup>','28'],
+      kunci: 'C' },
+    { soal: 'Nilai dari 3<sup>4</sup> adalah ...',
+      opsi: ['12','64','81','34'],
+      kunci: 'C' },
+    { soal: 'Pada 8<sup>6</sup>, basis dan eksponen berturut-turut adalah ...',
+      opsi: ['6 dan 8','8 dan 6','48 dan 6','8 dan 48'],
+      kunci: 'B' },
+    { soal: 'Nilai dari (&minus;3)<sup>4</sup> adalah ...',
+      opsi: ['&minus;81','&minus;12','12','81'],
+      kunci: 'D' },
+    { soal: 'Kubus dengan rusuk 5 cm, volume dapat ditulis sebagai ...',
+      opsi: ['5 &times; 3','3<sup>5</sup>','5<sup>2</sup>','5<sup>3</sup>'],
+      kunci: 'D' }
   ],
   2: [
-    {
-      soal: 'Hasil dari 5³ × 5⁴ adalah ...',
-      opsi: ['A. 5⁷','B. 5¹²','C. 25⁷','D. 5¹'],
-      kunci: 'A'
-    },
-    {
-      soal: 'Hasil dari x⁸ ÷ x³ adalah ...',
-      opsi: ['A. x¹¹','B. x²⁴','C. x⁵','D. x²'],
-      kunci: 'C'
-    },
-    {
-      soal: 'Hasil dari (3²)⁴ adalah ...',
-      opsi: ['A. 3⁶','B. 3⁸','C. 3²','D. 3¹⁶'],
-      kunci: 'B'
-    },
-    {
-      soal: 'Hasil dari (2x³)⁴ adalah ...',
-      opsi: ['A. 8x¹²','B. 16x⁷','C. 8x⁷','D. 16x¹²'],
-      kunci: 'D'
-    },
-    {
-      soal: 'Bentuk sederhana dari a⁴ × a³ ÷ a² adalah ...',
-      opsi: ['A. a⁵','B. a⁹','C. a²⁴','D. a³'],
-      kunci: 'A'
-    }
+    { soal: 'Hasil dari 5<sup>3</sup> &times; 5<sup>4</sup> adalah ...',
+      opsi: ['5<sup>7</sup>','5<sup>12</sup>','25<sup>7</sup>','5<sup>1</sup>'],
+      kunci: 'A' },
+    { soal: 'Hasil dari x<sup>8</sup> &divide; x<sup>3</sup> adalah ...',
+      opsi: ['x<sup>11</sup>','x<sup>24</sup>','x<sup>5</sup>','x<sup>2</sup>'],
+      kunci: 'C' },
+    { soal: 'Hasil dari (3<sup>2</sup>)<sup>4</sup> adalah ...',
+      opsi: ['3<sup>6</sup>','3<sup>8</sup>','3<sup>2</sup>','3<sup>16</sup>'],
+      kunci: 'B' },
+    { soal: 'Hasil dari (2x<sup>3</sup>)<sup>4</sup> adalah ...',
+      opsi: ['8x<sup>12</sup>','16x<sup>7</sup>','8x<sup>7</sup>','16x<sup>12</sup>'],
+      kunci: 'D' },
+    { soal: 'Bentuk sederhana dari a<sup>4</sup> &times; a<sup>3</sup> &divide; a<sup>2</sup> adalah ...',
+      opsi: ['a<sup>5</sup>','a<sup>9</sup>','a<sup>24</sup>','a<sup>3</sup>'],
+      kunci: 'A' }
   ],
   3: [
-    {
-      soal: 'Nilai dari 9⁰ adalah ...',
-      opsi: ['A. 0','B. 9','C. 1','D. 90'],
-      kunci: 'C'
-    },
-    {
-      soal: 'Nilai dari 4⁻² adalah ...',
-      opsi: ['A. –16','B. –8','C. 1/8','D. 1/16'],
-      kunci: 'D'
-    },
-    {
-      soal: 'Bentuk positif dari 3x⁻⁴ adalah ...',
-      opsi: ['A. 3/x⁴','B. –3x⁴','C. x⁴/3','D. 3x⁴'],
-      kunci: 'A'
-    },
-    {
-      soal: 'Hasil dari a⁻³ × a⁵ adalah ...',
-      opsi: ['A. a⁻¹⁵','B. a⁻²','C. a²','D. a⁸'],
-      kunci: 'C'
-    },
-    {
-      soal: 'Hasil dari (2a⁻²)³ adalah ...',
-      opsi: ['A. 8/a⁶','B. 6/a⁶','C. 8/a⁵','D. 6/a⁵'],
-      kunci: 'A'
-    }
+    { soal: 'Nilai dari 9<sup>0</sup> adalah ...',
+      opsi: ['0','9','1','90'],
+      kunci: 'C' },
+    { soal: 'Nilai dari 4<sup>&minus;2</sup> adalah ...',
+      opsi: ['&minus;16','&minus;8','1/8','1/16'],
+      kunci: 'D' },
+    { soal: 'Bentuk positif dari 3x<sup>&minus;4</sup> adalah ...',
+      opsi: ['3/x<sup>4</sup>','&minus;3x<sup>4</sup>','x<sup>4</sup>/3','3x<sup>4</sup>'],
+      kunci: 'A' },
+    { soal: 'Hasil dari a<sup>&minus;3</sup> &times; a<sup>5</sup> adalah ...',
+      opsi: ['a<sup>&minus;15</sup>','a<sup>&minus;2</sup>','a<sup>2</sup>','a<sup>8</sup>'],
+      kunci: 'C' },
+    { soal: 'Hasil dari (2a<sup>&minus;2</sup>)<sup>3</sup> adalah ...',
+      opsi: ['8/a<sup>6</sup>','6/a<sup>6</sup>','8/a<sup>5</sup>','6/a<sup>5</sup>'],
+      kunci: 'A' }
   ]
 };
 
-const soalAktif = SOAL_POSTTEST[pertemuan] || [];
-let jawaban = new Array(soalAktif.length).fill('');
-let sudahSubmit = false;
+const soal = SOAL[pertemuan] || [];
+let jawaban = new Array(soal.length).fill('');
+let submitted = false;
 
 window.onload = function() {
-  document.getElementById('headerPertemuan')
-    .textContent = `Pertemuan ${pertemuan}`;
-  renderSoal();
+  document.getElementById('headerP').textContent =
+    `Pertemuan ${pertemuan}`;
+  render();
 };
 
-function renderSoal() {
-  document.getElementById('kontenPostTest')
-    .innerHTML = `
-    
-    <div class="alert alert-warning" 
-      style="margin-top:16px">
-      <span>⚠️</span>
-      <div>
-        <strong>Post-test P${pertemuan}</strong><br>
-        <span style="font-size:12px">
-          ${soalAktif.length} soal. 
-          KKTP: ${CONFIG.KKTP}. 
-          Kerjakan secara mandiri.
-        </span>
-      </div>
-    </div>
-    
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;
-        font-size:13px;margin-bottom:6px">
-        <span>Progress</span>
-        <span id="progressText">
-          0/${soalAktif.length} dijawab
+function render() {
+  document.getElementById('konten').innerHTML = `
+
+    <div class="soal-counter">
+      <div class="progress-label">
+        <span class="text-xs text-hint">Progress</span>
+        <span class="text-xs text-bold" id="progText">
+          0/${soal.length} dijawab
         </span>
       </div>
       <div class="progress-bar">
-        <div class="progress-fill" id="progressFill" 
+        <div class="progress-fill" id="progFill"
           style="width:0%"></div>
       </div>
     </div>
-    
+
+    <div class="alert alert-warning">
+      <div class="alert-icon"
+        style="background:var(--warning);color:white">
+        !
+      </div>
+      <div>
+        <strong>Post-test P${pertemuan}</strong>
+        &mdash; ${soal.length} soal.
+        KKTP: ${CONFIG.KKTP}.
+        Kerjakan secara mandiri.
+      </div>
+    </div>
+
     <div id="daftarSoal">
-      ${soalAktif.map((s, i) => `
-        <div class="soal-card">
+      ${soal.map((s, i) => `
+        <div class="soal-item">
           <div class="soal-number">
-            Soal ${i + 1} dari ${soalAktif.length}
+            Soal ${i+1} dari ${soal.length}
           </div>
           <div class="soal-text">${s.soal}</div>
           <ul class="opsi-list">
             ${s.opsi.map((o, j) => {
-              const huruf = ['A','B','C','D'][j];
+              const h = ['A','B','C','D'][j];
               return `
                 <li class="opsi-item">
-                  <input type="radio" 
-                    name="soal${i}" 
-                    id="pt${i}o${j}" 
-                    value="${huruf}"
-                    onchange="pilihJawaban(
-                      ${i},'${huruf}')">
-                  <label class="opsi-label" 
-                    for="pt${i}o${j}">
-                    <strong>${huruf}.</strong> 
-                    ${o.substring(3)}
+                  <input type="radio"
+                    name="s${i}"
+                    id="p${i}o${j}"
+                    value="${h}"
+                    onchange="pilih(${i},'${h}')">
+                  <label class="opsi-label"
+                    for="p${i}o${j}">
+                    <span class="opsi-letter">${h}</span>
+                    <span>${o}</span>
                   </label>
-                </li>
-              `;
+                </li>`;
             }).join('')}
           </ul>
-        </div>
-      `).join('')}
+        </div>`).join('')}
     </div>
-    
-    <div id="statusPostTest"></div>
-    <button class="btn btn-primary" 
-      id="btnSubmit"
-      onclick="submitPostTest()"
-      style="margin-bottom:20px">
-      📤 Kumpulkan Post-test
+
+    <div id="statusPT"></div>
+    <button class="btn btn-primary"
+      id="btnSubmit" onclick="submit()"
+      style="margin-bottom:4px">
+      Kumpulkan Post-test
     </button>
+    <div class="text-xs text-hint text-center mb-16">
+      KKTP ${CONFIG.KKTP} &mdash; skor minimal untuk tuntas
+    </div>
+    <div class="bottom-space"></div>
   `;
 }
 
-function pilihJawaban(no, huruf) {
+function pilih(no, huruf) {
   jawaban[no] = huruf;
-  const dijawab = jawaban.filter(j => j !== '').length;
-  const persen = (dijawab / soalAktif.length) * 100;
-  document.getElementById('progressText')
-    .textContent = `${dijawab}/${soalAktif.length} dijawab`;
-  document.getElementById('progressFill')
-    .style.width = `${persen}%`;
+  const d = jawaban.filter(j=>j).length;
+  const pct = (d/soal.length)*100;
+  document.getElementById('progText').textContent =
+    `${d}/${soal.length} dijawab`;
+  document.getElementById('progFill').style.width =
+    `${pct}%`;
 }
 
-async function submitPostTest() {
-  if (sudahSubmit) return;
-  
-  const dijawab = jawaban.filter(j => j !== '').length;
-  if (dijawab < soalAktif.length) {
+async function submit() {
+  if (submitted) return;
+
+  const belum = jawaban.filter(j=>!j).length;
+  if (belum > 0) {
     if (!confirm(
-      `Masih ada ${soalAktif.length - dijawab} soal ` +
-      `yang belum dijawab. Tetap kumpulkan?`
-    )) return;
+      `Masih ada ${belum} soal belum dijawab.\n` +
+      `Tetap kumpulkan?`)) return;
   }
-  
-  sudahSubmit = true;
-  document.getElementById('btnSubmit').disabled = true;
-  APP.showLoading('statusPostTest', 'Mengirim...');
-  
-  const result = await API.simpanPostTest(
-    nama, pertemuan, jawaban
-  );
-  
-  if (result.status === 'success') {
-    const { skor, tuntas, kktp, detail } = result.data;
-    
+
+  submitted = true;
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = 'Mengirim...';
+
+  APP.showLoading('statusPT', 'Mengirim...');
+
+  const res = await API.simpanPostTest(
+    nama, pertemuan, jawaban);
+
+  if (res.status === 'success') {
+    const { skor, tuntas, kktp, detail } = res.data;
+    const warna = tuntas === 'Ya'
+      ? 'var(--success)' : 'var(--error)';
+
     document.getElementById('daftarSoal')
       .style.display = 'none';
-    document.getElementById('btnSubmit')
-      .style.display = 'none';
-    
-    document.getElementById('statusPostTest')
-      .innerHTML = `
-        <div class="card" style="text-align:center;
-          border:3px solid ${
-            tuntas === 'Ya' ? '#2E7D32' : '#C62828'
-          }">
-          
-          <div style="font-size:48px;margin-bottom:8px">
-            ${tuntas === 'Ya' ? '🎉' : '💪'}
-          </div>
-          
-          <div style="font-size:40px;font-weight:700;
-            color:${tuntas === 'Ya' ? '#2E7D32' : '#C62828'}">
-            ${skor}
-          </div>
-          <div style="color:#666;margin-bottom:12px">
-            Skor Post-test
-          </div>
-          
-          <div class="badge 
-            ${tuntas === 'Ya' 
-              ? 'badge-success' 
-              : 'badge-error'}" 
-            style="font-size:14px;padding:8px 20px">
-            ${tuntas === 'Ya' 
-              ? '✅ TUNTAS' 
-              : '❌ BELUM TUNTAS'}
-          </div>
-          
-          <div style="font-size:13px;color:#666;
-            margin:12px 0">
-            KKTP: ${kktp}
-          </div>
-          
-          <!-- Detail jawaban -->
-          <div style="text-align:left;margin:16px 0">
-            <strong style="font-size:13px">
-              Detail Jawaban:
-            </strong>
-            ${detail.map(d => `
-              <div style="display:flex;gap:8px;
-                padding:6px 0;border-bottom:1px solid #f0f0f0;
-                font-size:13px;align-items:center">
-                <span style="width:60px;color:#666">
-                  Soal ${d.nomor}
-                </span>
-                <span>Jawaban: <strong>${d.jawaban || '-'}</strong></span>
-                <span>Kunci: <strong>${d.kunci}</strong></span>
-                <span style="margin-left:auto">
-                  ${d.benar ? '✅' : '❌'}
-                </span>
-              </div>
-            `).join('')}
-          </div>
-          
-          <button class="btn btn-primary" 
-            onclick="APP.goTo('refleksi.html')"
-            style="margin-top:8px">
-            ➡ Lanjut ke Refleksi
-          </button>
+    btn.style.display = 'none';
+
+    document.getElementById('statusPT').innerHTML = `
+      <div class="result-card"
+        style="border-color:${warna};margin-top:12px">
+        <div class="result-score" style="color:${warna}">
+          ${skor}
         </div>
-      `;
+        <div class="result-label">Skor Post-test</div>
+
+        <span class="badge"
+          style="background:${warna}15;color:${warna};
+            font-size:13px;padding:6px 18px">
+          ${tuntas === 'Ya' ? 'TUNTAS' : 'BELUM TUNTAS'}
+        </span>
+
+        <div class="text-xs text-hint mt-8">
+          KKTP: ${kktp}
+        </div>
+
+        <!-- DETAIL -->
+        <div class="result-detail">
+          <div class="text-xs text-hint mb-8">
+            DETAIL JAWABAN
+          </div>
+          ${detail.map(d => `
+            <div class="result-row">
+              <span class="result-num">
+                Soal ${d.nomor}
+              </span>
+              <span class="text-sm">
+                Jawaban: <strong>${d.jawaban||'-'}</strong>
+              </span>
+              <span class="text-sm">
+                Kunci: <strong>${d.kunci}</strong>
+              </span>
+              <span class="result-check
+                ${d.benar ? 'benar' : 'salah'}">
+                ${d.benar ? 'B' : 'S'}
+              </span>
+            </div>`).join('')}
+        </div>
+
+        <button class="btn btn-primary"
+          onclick="APP.goTo('refleksi.html')">
+          Lanjut ke Refleksi
+        </button>
+      </div>
+      <div class="bottom-space"></div>`;
   } else {
-    APP.showError('statusPostTest', result.message);
-    sudahSubmit = false;
-    document.getElementById('btnSubmit').disabled = false;
+    APP.showError('statusPT', res.message);
+    submitted = false;
+    btn.disabled = false;
+    btn.textContent = 'Kumpulkan Post-test';
   }
+}
+
+function konfirmasiKeluar() {
+  if (jawaban.some(j=>j)) {
+    if (!confirm(
+      'Jawaban belum dikumpulkan. Yakin keluar?'))
+      return;
+  }
+  APP.goTo('dashboard.html');
 }
 
 </script>

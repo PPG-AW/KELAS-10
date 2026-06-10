@@ -2,119 +2,127 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" 
-    content="width=device-width, initial-scale=1.0">
-  <title>Refleksi – Bilangan Berpangkat</title>
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0,
+    viewport-fit=cover">
+  <meta name="theme-color" content="#1565C0">
+  <title>Refleksi</title>
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
 <div class="header">
-  <div>
-    <div class="subtitle">Refleksi Belajar</div>
-    <h1 id="headerP">Pertemuan ...</h1>
+  <div class="header-left">
+    <div class="header-sub">Refleksi Belajar</div>
+    <div class="header-title" id="headerP">-</div>
   </div>
-  <button class="btn-logout" 
+  <button class="btn-back"
     onclick="APP.goTo('dashboard.html')">
-    ← Dashboard
+    Dashboard
   </button>
 </div>
 
 <div class="container">
 
-  <div class="alert alert-info" style="margin-top:16px">
-    <span>💭</span>
-    Isi refleksi dengan jujur. 
-    Ini membantu gurumu memahami pengalamanmu belajar.
+  <div class="alert alert-info" style="margin-top:12px">
+    <div class="alert-icon">i</div>
+    <div>
+      Isi refleksi dengan jujur.
+      Jawaban kamu membantu guru
+      memahami pengalaman belajarmu.
+    </div>
   </div>
 
   <div class="card">
-    <div class="card-title">📝 Form Refleksi</div>
-    
+    <div class="card-title">Form Refleksi</div>
+
     <!-- P1 -->
     <div class="form-group">
-      <label>1. Apa yang sudah kamu pahami 
-        dari pembelajaran hari ini?</label>
-      <textarea id="p1" class="form-control" 
+      <label class="form-label">
+        1. Apa yang sudah kamu pahami
+        dari pembelajaran hari ini?
+      </label>
+      <textarea id="r1" class="form-control"
         placeholder="Tulis pemahamanmu..."
         rows="3"></textarea>
     </div>
-    
+
     <!-- P2 -->
     <div class="form-group">
-      <label>2. Bagian mana yang masih sulit 
-        atau membingungkan?</label>
-      <textarea id="p2" class="form-control" 
+      <label class="form-label">
+        2. Bagian mana yang masih sulit
+        atau membingungkan?
+      </label>
+      <textarea id="r2" class="form-control"
         placeholder="Tulis kesulitanmu..."
         rows="3"></textarea>
     </div>
-    
+
     <!-- P3 -->
     <div class="form-group">
-      <label>3. Apa yang paling membantu 
-        proses belajarmu hari ini?</label>
-      <div id="opsiP3">
-        <div class="refleksi-option" 
-          onclick="pilihP3(this, 'Penjelasan guru')">
-          🟦 Penjelasan guru di stasiun guru
-        </div>
-        <div class="refleksi-option" 
-          onclick="pilihP3(this, 'Materi online')">
-          🟩 Materi dan kuis di website
-        </div>
-        <div class="refleksi-option" 
-          onclick="pilihP3(this, 'LKPD mandiri')">
-          🟧 LKPD mandiri
-        </div>
-        <div class="refleksi-option" 
-          onclick="pilihP3(this, 'Lainnya')">
-          💡 Lainnya
-        </div>
+      <label class="form-label">
+        3. Apa yang paling membantu
+        proses belajarmu hari ini?
+      </label>
+
+      <div id="opsi3">
+        ${[
+          'Penjelasan guru di stasiun guru',
+          'Materi dan kuis di website',
+          'LKPD mandiri',
+          'Lainnya'
+        ].map(o => `
+          <div class="refleksi-option"
+            onclick="pilih3(this,'${o}')">
+            <span class="refleksi-dot"></span>
+            <span>${o}</span>
+          </div>`).join('')}
       </div>
     </div>
-    
+
     <!-- P4 -->
     <div class="form-group">
-      <label>4. Bagaimana perasaanmu setelah 
-        belajar hari ini?</label>
-      <div id="opsiP4">
-        <div class="refleksi-option" 
-          onclick="pilihP4(this, '😊 Senang dan paham')">
-          😊 Senang dan paham
-        </div>
-        <div class="refleksi-option" 
-          onclick="pilihP4(this, '😐 Cukup paham')">
-          😐 Cukup paham
-        </div>
-        <div class="refleksi-option" 
-          onclick="pilihP4(this, '😕 Masih bingung')">
-          😕 Masih bingung
-        </div>
-        <div class="refleksi-option" 
-          onclick="pilihP4(this, '😟 Belum paham')">
-          😟 Belum paham sama sekali
-        </div>
+      <label class="form-label">
+        4. Bagaimana perasaanmu setelah
+        belajar hari ini?
+      </label>
+
+      <div id="opsi4">
+        ${[
+          'Senang dan paham',
+          'Cukup paham',
+          'Masih bingung',
+          'Belum paham sama sekali'
+        ].map(o => `
+          <div class="refleksi-option"
+            onclick="pilih4(this,'${o}')">
+            <span class="refleksi-dot"></span>
+            <span>${o}</span>
+          </div>`).join('')}
       </div>
     </div>
-    
+
     <!-- P5 -->
     <div class="form-group">
-      <label>5. Apa yang ingin kamu pelajari 
-        lebih lanjut?</label>
-      <textarea id="p5" class="form-control" 
+      <label class="form-label">
+        5. Apa yang ingin kamu pelajari
+        lebih lanjut?
+      </label>
+      <textarea id="r5" class="form-control"
         placeholder="Tulis keinginanmu..."
         rows="2"></textarea>
     </div>
-    
+
     <div id="statusRefleksi"></div>
-    
-    <button class="btn btn-primary" 
-      onclick="submitRefleksi()">
-      📤 Kirim Refleksi
+
+    <button class="btn btn-primary"
+      id="btnSubmit" onclick="submit()">
+      Kirim Refleksi
     </button>
-    
+
   </div>
 
+  <div class="bottom-space"></div>
 </div>
 
 <script src="assets/js/config.js"></script>
@@ -123,82 +131,86 @@
 <script>
 
 if (!APP.requireLogin()) {};
-
 const nama = APP.getSiswa();
 const pertemuan = APP.getPertemuan() || 1;
 
-let pilihanP3 = '';
-let pilihanP4 = '';
+let val3 = '', val4 = '';
 
 window.onload = function() {
-  document.getElementById('headerP')
-    .textContent = `Pertemuan ${pertemuan}`;
+  document.getElementById('headerP').textContent =
+    `Pertemuan ${pertemuan}`;
 };
 
-function pilihP3(el, nilai) {
-  document.querySelectorAll('#opsiP3 .refleksi-option')
+function pilih3(el, val) {
+  document.querySelectorAll('#opsi3 .refleksi-option')
     .forEach(e => e.classList.remove('selected'));
   el.classList.add('selected');
-  pilihanP3 = nilai;
+  val3 = val;
 }
 
-function pilihP4(el, nilai) {
-  document.querySelectorAll('#opsiP4 .refleksi-option')
+function pilih4(el, val) {
+  document.querySelectorAll('#opsi4 .refleksi-option')
     .forEach(e => e.classList.remove('selected'));
   el.classList.add('selected');
-  pilihanP4 = nilai;
+  val4 = val;
 }
 
-async function submitRefleksi() {
-  const data = {
-    yangDipahami: document.getElementById('p1').value,
-    yangMasihSulit: document.getElementById('p2').value,
-    yangMembantu: pilihanP3,
-    perasaan: pilihanP4,
-    inginDipelajari: document.getElementById('p5').value
-  };
-  
-  if (!data.yangDipahami && !data.perasaan) {
+async function submit() {
+  const r1 = document.getElementById('r1').value;
+  const r4 = val4;
+
+  if (!r1 && !r4) {
     APP.showToast(
-      'Isi minimal pertanyaan 1 dan 4', 'error'
-    );
+      'Isi minimal pertanyaan 1 dan 4', 'error');
     return;
   }
-  
+
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = 'Menyimpan...';
   APP.showLoading('statusRefleksi', 'Menyimpan...');
-  
-  const result = await API.simpanRefleksi(
-    nama, pertemuan, data
-  );
-  
-  if (result.status === 'success') {
-    document.getElementById('statusRefleksi')
-      .innerHTML = `
-        <div class="alert alert-success">
-          ✅ Refleksi berhasil disimpan!
+
+  const res = await API.simpanRefleksi(nama, pertemuan, {
+    yangDipahami  : r1,
+    yangMasihSulit: document.getElementById('r2').value,
+    yangMembantu  : val3,
+    perasaan      : val4,
+    inginDipelajari:document.getElementById('r5').value
+  });
+
+  if (res.status === 'success') {
+    document.querySelector('.card').innerHTML = `
+      <div style="text-align:center;padding:24px 0">
+        <div style="width:56px;height:56px;
+          background:var(--success-light);
+          border-radius:50%;
+          margin:0 auto 16px;
+          display:flex;align-items:center;
+          justify-content:center">
+          <svg width="28" height="28"
+            viewBox="0 0 24 24"
+            fill="var(--success)">
+            <path d="M9 16.17L4.83 12l-1.42
+              1.41L9 19 21 7l-1.41-1.41z"/>
+          </svg>
         </div>
-        <div class="card" style="text-align:center">
-          <div style="font-size:48px">🎊</div>
-          <h3 style="color:#2E7D32;margin:8px 0">
-            Pertemuan ${pertemuan} Selesai!
-          </h3>
-          <p style="color:#666;font-size:14px">
-            Terima kasih sudah belajar dengan sungguh-sungguh.
-          </p>
-          <button class="btn btn-primary" 
-            style="margin-top:16px"
-            onclick="APP.goTo('dashboard.html')">
-            🏠 Kembali ke Dashboard
-          </button>
+        <div style="font-size:18px;font-weight:800;
+          color:var(--success);margin-bottom:4px">
+          Pertemuan ${pertemuan} Selesai
         </div>
-      `;
-    
-    // Sembunyikan form
-    document.querySelector('.card:first-of-type')
-      .style.display = 'none';
-      
+        <div class="text-sm text-hint mb-16">
+          Terima kasih sudah belajar
+          dengan sungguh-sungguh.
+        </div>
+        <button class="btn btn-primary"
+          onclick="APP.goTo('dashboard.html')">
+          Kembali ke Dashboard
+        </button>
+      </div>`;
   } else {
-    APP.showError('statusRefleksi', result.message);
+    APP.showError('statusRefleksi', res.message);
+    btn.disabled = false;
+    btn.textContent = 'Kirim Refleksi';
   }
 }
 
