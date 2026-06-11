@@ -33,7 +33,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" id="kartuForm">
     <div class="card-title">Form Refleksi</div>
 
     <!-- P1 -->
@@ -64,20 +64,7 @@
         3. Apa yang paling membantu
         proses belajarmu hari ini?
       </label>
-
-      <div id="opsi3">
-        ${[
-          'Penjelasan guru di stasiun guru',
-          'Materi dan kuis di website',
-          'LKPD mandiri',
-          'Lainnya'
-        ].map(o => `
-          <div class="refleksi-option"
-            onclick="pilih3(this,'${o}')">
-            <span class="refleksi-dot"></span>
-            <span>${o}</span>
-          </div>`).join('')}
-      </div>
+      <div id="opsi3"></div>
     </div>
 
     <!-- P4 -->
@@ -86,20 +73,7 @@
         4. Bagaimana perasaanmu setelah
         belajar hari ini?
       </label>
-
-      <div id="opsi4">
-        ${[
-          'Senang dan paham',
-          'Cukup paham',
-          'Masih bingung',
-          'Belum paham sama sekali'
-        ].map(o => `
-          <div class="refleksi-option"
-            onclick="pilih4(this,'${o}')">
-            <span class="refleksi-dot"></span>
-            <span>${o}</span>
-          </div>`).join('')}
-      </div>
+      <div id="opsi4"></div>
     </div>
 
     <!-- P5 -->
@@ -136,21 +110,59 @@ const pertemuan = APP.getPertemuan() || 1;
 
 let val3 = '', val4 = '';
 
+const OPSI_3 = [
+  'Penjelasan guru di stasiun guru',
+  'Materi dan kuis di website',
+  'LKPD mandiri',
+  'Lainnya'
+];
+
+const OPSI_4 = [
+  'Senang dan paham',
+  'Cukup paham',
+  'Masih bingung',
+  'Belum paham sama sekali'
+];
+
 window.onload = function() {
   document.getElementById('headerP').textContent =
-    `Pertemuan ${pertemuan}`;
+    'Pertemuan ' + pertemuan;
+  
+  // Render opsi pertanyaan 3
+  document.getElementById('opsi3').innerHTML =
+    OPSI_3.map(function(o) {
+      return '<div class="refleksi-option" ' +
+        'onclick="pilih3(this, \'' + o + '\')">' +
+        '<span class="refleksi-dot"></span>' +
+        '<span>' + o + '</span>' +
+        '</div>';
+    }).join('');
+  
+  // Render opsi pertanyaan 4
+  document.getElementById('opsi4').innerHTML =
+    OPSI_4.map(function(o) {
+      return '<div class="refleksi-option" ' +
+        'onclick="pilih4(this, \'' + o + '\')">' +
+        '<span class="refleksi-dot"></span>' +
+        '<span>' + o + '</span>' +
+        '</div>';
+    }).join('');
 };
 
 function pilih3(el, val) {
   document.querySelectorAll('#opsi3 .refleksi-option')
-    .forEach(e => e.classList.remove('selected'));
+    .forEach(function(e) {
+      e.classList.remove('selected');
+    });
   el.classList.add('selected');
   val3 = val;
 }
 
 function pilih4(el, val) {
   document.querySelectorAll('#opsi4 .refleksi-option')
-    .forEach(e => e.classList.remove('selected'));
+    .forEach(function(e) {
+      e.classList.remove('selected');
+    });
   el.classList.add('selected');
   val4 = val;
 }
@@ -171,42 +183,42 @@ async function submit() {
   APP.showLoading('statusRefleksi', 'Menyimpan...');
 
   const res = await API.simpanRefleksi(nama, pertemuan, {
-    yangDipahami  : r1,
+    yangDipahami: r1,
     yangMasihSulit: document.getElementById('r2').value,
-    yangMembantu  : val3,
-    perasaan      : val4,
-    inginDipelajari:document.getElementById('r5').value
+    yangMembantu: val3,
+    perasaan: val4,
+    inginDipelajari: document.getElementById('r5').value
   });
 
   if (res.status === 'success') {
-    document.querySelector('.card').innerHTML = `
-      <div style="text-align:center;padding:24px 0">
-        <div style="width:56px;height:56px;
-          background:var(--success-light);
-          border-radius:50%;
-          margin:0 auto 16px;
-          display:flex;align-items:center;
-          justify-content:center">
-          <svg width="28" height="28"
-            viewBox="0 0 24 24"
-            fill="var(--success)">
-            <path d="M9 16.17L4.83 12l-1.42
-              1.41L9 19 21 7l-1.41-1.41z"/>
-          </svg>
-        </div>
-        <div style="font-size:18px;font-weight:800;
-          color:var(--success);margin-bottom:4px">
-          Pertemuan ${pertemuan} Selesai
-        </div>
-        <div class="text-sm text-hint mb-16">
-          Terima kasih sudah belajar
-          dengan sungguh-sungguh.
-        </div>
-        <button class="btn btn-primary"
-          onclick="APP.goTo('dashboard.html')">
-          Kembali ke Dashboard
-        </button>
-      </div>`;
+    document.getElementById('kartuForm').innerHTML =
+      '<div style="text-align:center;padding:24px 0">' +
+        '<div style="width:56px;height:56px;' +
+          'background:var(--success-light);' +
+          'border-radius:50%;' +
+          'margin:0 auto 16px;' +
+          'display:flex;align-items:center;' +
+          'justify-content:center">' +
+          '<svg width="28" height="28" ' +
+            'viewBox="0 0 24 24" ' +
+            'fill="var(--success)">' +
+            '<path d="M9 16.17L4.83 12l-1.42 ' +
+              '1.41L9 19 21 7l-1.41-1.41z"/>' +
+          '</svg>' +
+        '</div>' +
+        '<div style="font-size:18px;font-weight:800;' +
+          'color:var(--success);margin-bottom:4px">' +
+          'Pertemuan ' + pertemuan + ' Selesai' +
+        '</div>' +
+        '<div class="text-sm text-hint mb-16">' +
+          'Terima kasih sudah belajar ' +
+          'dengan sungguh-sungguh.' +
+        '</div>' +
+        '<button class="btn btn-primary" ' +
+          'onclick="APP.goTo(\'dashboard.html\')">' +
+          'Kembali ke Dashboard' +
+        '</button>' +
+      '</div>';
   } else {
     APP.showError('statusRefleksi', res.message);
     btn.disabled = false;
