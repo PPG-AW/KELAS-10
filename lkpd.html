@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0,
+    viewport-fit=cover">
+  <meta name="theme-color" content="#1565C0">
+  <title>LKPD - Bilangan Berpangkat</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .lkpd-header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      position: sticky;
+      top: 57px;
+      z-index: 50;
+    }
+    .lkpd-badge-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .kegiatan-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .kegiatan-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary-light);
+    }
+    .isian-group {
+      margin-bottom: 14px;
+    }
+    .isian-label {
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 6px;
+    }
+    .isian-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-family: var(--font);
+      background: var(--white);
+      -webkit-appearance: none;
+    }
+    .isian-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    .isian-inline {
+      display: inline-block;
+      width: 80px;
+      padding: 6px 10px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-xs);
+      font-size: 15px;
+      text-align: center;
+      font-family: var(--font);
+      -webkit-appearance: none;
+    }
+    .isian-inline:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    .tabel-isian {
+      width: 100%;
+      font-size: 13px;
+      border-collapse: collapse;
+      margin: 10px 0;
+    }
+    .tabel-isian th {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 8px;
+      text-align: center;
+      font-size: 12px;
+    }
+    .tabel-isian td {
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      text-align: center;
+    }
+    .tabel-isian input {
+      width: 100%;
+      border: none;
+      text-align: center;
+      font-size: 14px;
+      padding: 4px;
+      font-family: var(--font);
+      background: transparent;
+    }
+    .tabel-isian input:focus {
+      outline: none;
+      background: var(--primary-light);
+    }
+    .btn-submit-wrap {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px;
+      padding-bottom: calc(12px + env(safe-area-inset-bottom));
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      z-index: 100;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-sub">LKPD Mandiri</div>
+    <div class="header-title" id="headerP">-</div>
+  </div>
+  <button class="btn-back"
+    onclick="konfirmasiKeluar()">
+    Kembali
+  </button>
+</div>
+
+<!-- INFO BAR -->
+<div class="lkpd-header" id="lkpdInfo">
+  <div class="lkpd-badge-row">
+    <span class="badge badge-fill-primary" id="badgeP">-</span>
+    <span class="badge" id="badgeLevel">-</span>
+  </div>
+</div>
+
+<!-- KONTEN -->
+<div class="container" id="konten" style="padding-bottom:80px">
+  <div class="loading" style="margin-top:40px">
+    <div class="spinner"></div>
+    <div class="loading-text">Memuat LKPD...</div>
+  </div>
+</div>
+
+<!-- TOMBOL SUBMIT -->
+<div class="btn-submit-wrap" id="btnSubmitWrap" style="display:none">
+  <button class="btn btn-primary" id="btnSubmit" onclick="submitLKPD()">
+    Kumpulkan LKPD
+  </button>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/main.js"></script>
+<script>
+
+if (!APP.requireLogin()) {};
+const nama = APP.getSiswa();
+const pertemuan = parseInt(APP.getPertemuan()) || 1;
+const level = parseInt(APP.getLevel()) || 1;
+
+const params = new URLSearchParams(window.location.search);
+const sesiNo = params.get('sesi') || '1';
+
+// ============================================
+// DATA LKPD PER PERTEMUAN PER LEVEL
+// ============================================
+
+const LKPD = {
+
+// ==========================================
+// PERTEMUAN 1
+// ==========================================
+
+'1_1': { // P1, Level 1
+  judul: 'LKPD Dasar - Pengertian Bilangan Berpangkat',
+  kegiatan: [
+    {
+      nama: 'Kegiatan 1: Mengenal Perkalian Berulang',
+      html: `
+        <div class="isian-label">
+          Lengkapi tabel berikut:
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tabel-isian">
+            <tr>
+              <th>Bentuk Perkalian</th>
+              <th>Bentuk Pangkat</th>
+              <th>Nilai</th>
+            </tr>
+            <tr>
+              <td>2 &times; 2 &times; 2</td>
+              <td>2<sup>3</sup></td>
+              <td><input type="text" name="k1_1" placeholder="?"></td>
+            </tr>
+            <tr>
+              <td>3 &times; 3 &times; 3 &times; 3</td>
+              <td><input type="text" name="k1_2" placeholder="?"></td>
+              <td><input type="text" name="k1_3" placeholder="?"></td>
+            </tr>
+            <tr>
+              <td>5 &times; 5</td>
+              <td><input type="text" name="k1_4" placeholder="?"></td>
+              <td><input type="text" name="k1_5" placeholder="?"></td>
+            </tr>
+            <tr>
+              <td>4 &times; 4 &times; 4</td>
+              <td><input type="text" name="k1_6" placeholder="?"></td>
+              <td><input type="text" name="k1_7" placeholder="?"></td>
+            </tr>
+          </table>
+        </div>`
+    },
+    {
+      nama: 'Kegiatan 2: Identifikasi Basis dan Eksponen',
+      html: `
+        <div class="isian-label">Tentukan basis dan eksponen:</div>
+        ${['7<sup>4</sup>','9<sup>2</sup>','a<sup>5</sup>','2<sup>6</sup>']
+          .map((b, i) => `
+            <div style="display:flex;gap:8px;align-items:center;
+              margin-bottom:8px;padding:8px;
+              background:var(--bg);border-radius:var(--radius-xs)">
+              <span style="min-width:50px;font-size:16px">${b}</span>
+              <span class="text-xs">Basis:</span>
+              <input type="text" class="isian-inline" name="k2_b${i}" placeholder="?">
+              <span class="text-xs">Eksponen:</span>
+              <input type="text" class="isian-inline" name="k2_e${i}" placeholder="?">
+            </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 3: Menghitung Nilai',
+      html: `
+        <div class="isian-label">Hitung dengan menjabarkan perkalian:</div>
+        ${[
+          ['2<sup>4</sup>', '2 &times; 2 &times; 2 &times; 2'],
+          ['3<sup>3</sup>', '... &times; ... &times; ...'],
+          ['5<sup>2</sup>', '... &times; ...'],
+          ['(&minus;2)<sup>2</sup>', '... &times; ...']
+        ].map((s, i) => `
+          <div class="isian-group">
+            <div class="isian-label">
+              ${s[0]} = ${s[1]} =
+              <input type="text" class="isian-inline" name="k3_${i}" placeholder="?">
+            </div>
+          </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 4: Soal Kontekstual',
+      html: `
+        <div class="isian-label">
+          Sebuah persegi memiliki panjang sisi 4 cm.
+        </div>
+        <div class="isian-group">
+          <div class="isian-label">
+            Tulis luas dalam bentuk berpangkat:
+          </div>
+          <input type="text" class="isian-input" name="k4_1"
+            placeholder="Luas = ...">
+        </div>
+        <div class="isian-group">
+          <div class="isian-label">
+            Hitung nilai luasnya:
+          </div>
+          <input type="text" class="isian-input" name="k4_2"
+            placeholder="Luas = ... cm2">
+        </div>`
+    },
+    {
+      nama: 'Kegiatan 5: Cek Pemahaman',
+      html: generateSoalPGHTML('lkpd1a', [
+        { soal: 'Bentuk berpangkat dari 6 &times; 6 &times; 6 &times; 6 &times; 6 adalah ...',
+          opsi: ['5<sup>6</sup>','6<sup>5</sup>','30','6 &times; 5'] },
+        { soal: 'Nilai dari 2<sup>3</sup> adalah ...',
+          opsi: ['6','8','9','12'] },
+        { soal: 'Eksponen dari 9<sup>4</sup> adalah ...',
+          opsi: ['9','36','4','94'] }
+      ])
+    }
+  ]
+},
+
+'1_2': { // P1, Level 2
+  judul: 'LKPD Sedang - Pengertian Bilangan Berpangkat',
+  kegiatan: [
+    {
+      nama: 'Kegiatan 1: Sederhanakan ke Bentuk Pangkat',
+      html: `
+        ${['5 &times; 5 &times; 5 &times; 5 &times; 5 &times; 5',
+           'a &times; a &times; a',
+           '(&minus;2) &times; (&minus;2) &times; (&minus;2)',
+           '(1/2) &times; (1/2) &times; (1/2)']
+          .map((s, i) => `
+            <div class="isian-group">
+              <div class="isian-label">${s} =</div>
+              <input type="text" class="isian-input" name="k1_${i}" placeholder="Jawaban">
+            </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 2: Menghitung Nilai',
+      html: `
+        ${['2<sup>6</sup>','(&minus;3)<sup>4</sup>','(1/2)<sup>3</sup>','(&minus;1)<sup>5</sup>']
+          .map((s, i) => `
+            <div class="isian-group">
+              <div class="isian-label">${s} =</div>
+              <input type="text" class="isian-input" name="k2_${i}" placeholder="Jawaban">
+            </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 3: Perbandingan Nilai',
+      html: `
+        <div class="isian-label">Mana yang lebih besar? Hitung keduanya.</div>
+        ${[['2<sup>5</sup>','5<sup>2</sup>'],['3<sup>3</sup>','3<sup>4</sup>'],['4<sup>2</sup>','2<sup>4</sup>']]
+          .map((p, i) => `
+            <div style="padding:12px;background:var(--bg);
+              border-radius:var(--radius-sm);margin-bottom:8px">
+              <div class="isian-label">${p[0]} atau ${p[1]} ?</div>
+              <div style="display:flex;gap:8px;margin-bottom:6px">
+                <div style="flex:1">
+                  <div class="text-xs text-hint">${p[0]} =</div>
+                  <input type="text" class="isian-input" name="k3_a${i}" placeholder="?">
+                </div>
+                <div style="flex:1">
+                  <div class="text-xs text-hint">${p[1]} =</div>
+                  <input type="text" class="isian-input" name="k3_b${i}" placeholder="?">
+                </div>
+              </div>
+              <div class="text-xs">Yang lebih besar:</div>
+              <input type="text" class="isian-input" name="k3_c${i}" placeholder="Jawaban">
+            </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 4: Soal Kontekstual',
+      html: `
+        <div class="isian-group">
+          <div class="isian-label">
+            Bak air berbentuk kubus dengan rusuk 3 dm. Berapa volumenya?
+          </div>
+          <input type="text" class="isian-input" name="k4_1"
+            placeholder="Volume = ... dm3">
+        </div>`
+    },
+    {
+      nama: 'Kegiatan 5: Cek Pemahaman',
+      html: generateSoalPGHTML('lkpd1b', [
+        { soal: 'Nilai dari (&minus;2)<sup>4</sup> adalah ...',
+          opsi: ['&minus;16','&minus;8','8','16'] },
+        { soal: 'Jika a<sup>n</sup> = 125 dan a = 5, maka n = ...',
+          opsi: ['2','3','4','5'] }
+      ])
+    }
+  ]
+},
+
+'1_3': { // P1, Level 3
+  judul: 'LKPD HOTS - Pengertian Bilangan Berpangkat',
+  kegiatan: [
+    {
+      nama: 'Kegiatan 1: Analisis dan Perbandingan',
+      html: `
+        <div class="isian-group">
+          <div class="isian-label">
+            Tanpa menghitung, mana yang lebih besar: 2<sup>10</sup> atau 10<sup>2</sup>?<br>
+            Jelaskan strategi berpikirmu!
+          </div>
+          <textarea class="isian-input" name="k1_1" rows="4"
+            placeholder="Tulis penjelasanmu..."></textarea>
+        </div>
+        <div class="isian-group">
+          <div class="isian-label">
+            Apakah (&minus;a)<sup>2</sup> selalu sama dengan a<sup>2</sup>?
+            Buktikan dengan 2 contoh!
+          </div>
+          <textarea class="isian-input" name="k1_2" rows="4"
+            placeholder="Tulis pembuktianmu..."></textarea>
+        </div>`
+    },
+    {
+      nama: 'Kegiatan 2: Pola Bilangan Berpangkat',
+      html: `
+        <div class="isian-label">
+          Tanpa menghitung, tentukan angka satuan dari 2<sup>10</sup>.
+          <br>Petunjuk: perhatikan pola angka satuan 2<sup>1</sup>, 2<sup>2</sup>, 2<sup>3</sup>, ...
+        </div>
+        <textarea class="isian-input" name="k2_1" rows="4"
+          placeholder="Tulis pola dan jawabanmu..."></textarea>`
+    },
+    {
+      nama: 'Kegiatan 3: Pemodelan Kontekstual',
+      html: `
+        <div class="isian-label">
+          Bakteri berkembang biak 2 kali lipat setiap jam. Awalnya ada 1 bakteri.
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tabel-isian">
+            <tr><th>Jam ke-</th><th>Jumlah</th><th>Bentuk Pangkat</th></tr>
+            ${[0,1,2,3,4,5].map(j => `
+              <tr>
+                <td>${j}</td>
+                <td><input type="text" name="k3_j${j}" placeholder="?"></td>
+                <td><input type="text" name="k3_p${j}" placeholder="?"></td>
+              </tr>`).join('')}
+          </table>
+        </div>
+        <div class="isian-group mt-8">
+          <div class="isian-label">Berapa bakteri setelah 10 jam?</div>
+          <input type="text" class="isian-input" name="k3_10" placeholder="Jawaban">
+        </div>
+        <div class="isian-group">
+          <div class="isian-label">Rumus jumlah bakteri setelah n jam jika awalnya ada 5 bakteri:</div>
+          <input type="text" class="isian-input" name="k3_rumus" placeholder="Jumlah = ...">
+        </div>`
+    },
+    {
+      nama: 'Kegiatan 4: Tantangan',
+      html: `
+        <div class="isian-label">
+          Buktikan bahwa a<sup>m</sup> &times; a<sup>n</sup> = a<sup>m+n</sup>
+          menggunakan definisi perkalian berulang!
+        </div>
+        <textarea class="isian-input" name="k4_1" rows="6"
+          placeholder="Tulis pembuktianmu step by step..."></textarea>`
+    }
+  ]
+},
+
+// ==========================================
+// PERTEMUAN 2
+// ==========================================
+
+'2_1': {
+  judul: 'LKPD Dasar - Sifat-Sifat Bilangan Berpangkat',
+  kegiatan: [
+    {
+      nama: 'Kegiatan 1: Sifat Perkalian',
+      html: `
+        <div class="formula" style="font-size:13px;margin-bottom:12px">
+          Sifat 1: a<sup>m</sup> &times; a<sup>n</sup> = a<sup>m+n</sup>
+        </div>
+        ${[
+          ['2<sup>3</sup> &times; 2<sup>4</sup>','2','3+4','7'],
+          ['a<sup>2</sup> &times; a<sup>5</sup>','a','',''],
+          ['x<sup>3</sup> &times; x &times; x<sup>2</sup>','x','',''],
+          ['3<sup>2</sup> &times; 3<sup>3</sup>','3','','']
+        ].map((s, i) => `
+          <div style="padding:8px;background:var(--bg);
+            border-radius:var(--radius-xs);margin-bottom:6px;
+            display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+            font-size:14px">
+            <span>${s[0]} = ${s[1]}<sup>(</sup></span>
+            <input type="text" class="isian-inline" style="width:50px"
+              name="k1_e${i}" placeholder="?" ${i===0?`value="${s[2]}"`:''}>
+            <span><sup>)</sup> =</span>
+            <input type="text" class="isian-inline" style="width:50px"
+              name="k1_v${i}" placeholder="?" ${i===0?`value="${s[1]}^${s[3]}"`:''}>
+          </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 2: Sifat Pembagian',
+      html: `
+        <div class="formula" style="font-size:13px;margin-bottom:12px">
+          Sifat 2: a<sup>m</sup> &divide; a<sup>n</sup> = a<sup>m&minus;n</sup>
+        </div>
+        ${['3<sup>7</sup> &divide; 3<sup>2</sup>',
+           'b<sup>8</sup> &divide; b<sup>3</sup>',
+           'y<sup>5</sup> &divide; y',
+           'a<sup>9</sup> &divide; a<sup>5</sup>']
+          .map((s, i) => `
+            <div class="isian-group">
+              <div class="isian-label">${s} =</div>
+              <input type="text" class="isian-input" name="k2_${i}" placeholder="Jawaban">
+            </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 3: Identifikasi Sifat',
+      html: `
+        <div class="isian-label">Tuliskan sifat yang digunakan (1 atau 2):</div>
+        ${[
+          '5<sup>2</sup> &times; 5<sup>3</sup> = 5<sup>5</sup>',
+          '4<sup>6</sup> &divide; 4<sup>2</sup> = 4<sup>4</sup>',
+          'm<sup>4</sup> &times; m<sup>7</sup> = m<sup>11</sup>'
+        ].map((s, i) => `
+          <div style="display:flex;gap:8px;align-items:center;
+            margin-bottom:8px;padding:8px;background:var(--bg);
+            border-radius:var(--radius-xs)">
+            <span style="flex:1;font-size:14px">${s}</span>
+            <span class="text-xs">Sifat ke-</span>
+            <input type="text" class="isian-inline" style="width:50px"
+              name="k3_${i}" placeholder="?">
+          </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 4: Cek Pemahaman',
+      html: generateSoalPGHTML('lkpd2a', [
+        { soal: 'Hasil dari a<sup>3</sup> &times; a<sup>6</sup> adalah ...',
+          opsi: ['a<sup>9</sup>','a<sup>18</sup>','2a<sup>9</sup>','a<sup>2</sup>'] },
+        { soal: 'Jika a<sup>m</sup> &times; a<sup>3</sup> = a<sup>7</sup>, maka m = ...',
+          opsi: ['3','4','7','10'] }
+      ])
+    }
+  ]
+},
+
+'2_2': {
+  judul: 'LKPD Sedang - Sifat-Sifat Bilangan Berpangkat',
+  kegiatan: [
+    {
+      nama: 'Kegiatan 1: Sifat Pangkat dari Pangkat',
+      html: `
+        ${['(2<sup>3</sup>)<sup>4</sup>','(x<sup>2</sup>)<sup>5</sup>',
+           '(a<sup>4</sup>)<sup>3</sup>','(3<sup>2</sup>)<sup>3</sup>']
+          .map((s, i) => `
+            <div class="isian-group">
+              <div class="isian-label">${s} =</div>
+              <input type="text" class="isian-input" name="k1_${i}" placeholder="Jawaban">
+            </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 2: Sifat Pangkat Perkalian dan Pembagian',
+      html: `
+        ${['(2x)<sup>3</sup>','(3a)<sup>2</sup>','(x/y)<sup>3</sup>','(2/3)<sup>2</sup>']
+          .map((s, i) => `
+            <div class="isian-group">
+              <div class="isian-label">${s} =</div>
+              <input type="text" class="isian-input" name="k2_${i}" placeholder="Jawaban">
+            </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 3: Kombinasi Sifat',
+      html: `
+        ${['a<sup>3</sup> &times; a<sup>2</sup> &divide; a',
+           '(2a<sup>2</sup>)<sup>3</sup> &times; a',
+           '(a<sup>2</sup>)<sup>3</sup> &times; (a<sup>3</sup>)<sup>2</sup>']
+          .map((s, i) => `
+            <div class="isian-group">
+              <div class="isian-label">Sederhanakan: ${s}</div>
+              <input type="text" class="isian-input" name="k3_${i}" placeholder="Jawaban">
+            </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 4: Soal Kontekstual',
+      html: `
+        <div class="isian-group">
+          <div class="isian-label">
+            Luas kebun persegi = (3<sup>2</sup>)<sup>2</sup> m<sup>2</sup>. Berapa luas sebenarnya?
+          </div>
+          <input type="text" class="isian-input" name="k4_1" placeholder="Jawaban">
+        </div>
+        <div class="isian-group">
+          <div class="isian-label">
+            Balok: panjang 2<sup>3</sup> cm, lebar 2<sup>2</sup> cm, tinggi 2 cm. Berapa volumenya?
+          </div>
+          <input type="text" class="isian-input" name="k4_2" placeholder="Jawaban">
+        </div>`
+    }
+  ]
+},
+
+'2_3': {
+  judul: 'LKPD HOTS - Sifat-Sifat Bilangan Berpangkat',
+  kegiatan: [
+    {
+      nama: 'Kegiatan 1: Penyederhanaan Kompleks',
+      html: `
+        ${[
+          '(a<sup>2</sup>b<sup>3</sup>)<sup>4</sup> &times; (ab<sup>2</sup>)<sup>&minus;1</sup>',
+          '(2x<sup>2</sup>y)<sup>3</sup> &divide; (4xy<sup>2</sup>)<sup>2</sup>',
+          '[(a<sup>3</sup>)<sup>2</sup>]<sup>4</sup> &divide; (a<sup>2</sup>)<sup>5</sup>'
+        ].map((s, i) => `
+          <div class="isian-group">
+            <div class="isian-label">Sederhanakan: ${s}</div>
+            <textarea class="isian-input" name="k1_${i}" rows="3"
+              placeholder="Tulis langkah penyelesaianmu..."></textarea>
+          </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 2: Pembuktian',
+      html: `
+        <div class="isian-group">
+          <div class="isian-label">
+            Buktikan bahwa (a<sup>m</sup>)<sup>n</sup> = (a<sup>n</sup>)<sup>m</sup>
+          </div>
+          <textarea class="isian-input" name="k2_1" rows="4"
+            placeholder="Tulis pembuktianmu..."></textarea>
+        </div>`
+    },
+    {
+      nama: 'Kegiatan 3: Analisis Kesalahan',
+      html: `
+        <div class="isian-group">
+          <div class="isian-label">
+            Seorang siswa menulis: 2<sup>3</sup> &times; 3<sup>3</sup> = 6<sup>6</sup>.
+            Apakah benar? Jelaskan!
+          </div>
+          <textarea class="isian-input" name="k3_1" rows="3"
+            placeholder="Analisismu..."></textarea>
+        </div>`
+    },
+    {
+      nama: 'Kegiatan 4: Soal Olimpiade',
+      html: `
+        <div class="isian-group">
+          <div class="isian-label">
+            Jika 2<sup>n</sup> &times; 4<sup>n</sup> = 8<sup>6</sup>, tentukan nilai n!
+          </div>
+          <textarea class="isian-input" name="k4_1" rows="4"
+            placeholder="Tulis langkah penyelesaianmu..."></textarea>
+        </div>`
+    }
+  ]
+},
+
+// ==========================================
+// PERTEMUAN 3
+// ==========================================
+
+'3_1': {
+  judul: 'LKPD Dasar - Pangkat Nol dan Pangkat Negatif',
+  kegiatan: [
+    {
+      nama: 'Kegiatan 1: Memahami Pangkat Nol',
+      html: `
+        <div class="isian-label">Lengkapi pola berikut:</div>
+        <div style="overflow-x:auto">
+          <table class="tabel-isian">
+            <tr><th>Bentuk</th><th>Nilai</th><th>Pola</th></tr>
+            <tr><td>3<sup>4</sup></td><td>81</td><td></td></tr>
+            <tr><td>3<sup>3</sup></td><td>27</td><td>&divide;3</td></tr>
+            <tr><td>3<sup>2</sup></td><td>9</td><td>&divide;3</td></tr>
+            <tr><td>3<sup>1</sup></td><td>3</td><td>&divide;3</td></tr>
+            <tr><td>3<sup>0</sup></td><td><input type="text" name="k1_1" placeholder="?"></td><td>&divide;3</td></tr>
+          </table>
+        </div>
+        <div class="isian-group mt-8">
+          <div class="isian-label">Kesimpulan: a<sup>0</sup> = </div>
+          <input type="text" class="isian-inline" name="k1_2" placeholder="?">
+        </div>`
+    },
+    {
+      nama: 'Kegiatan 2: Menghitung Pangkat Nol',
+      html: `
+        ${['3<sup>0</sup>','7<sup>0</sup>','(&minus;5)<sup>0</sup>','100<sup>0</sup>','(1/2)<sup>0</sup>']
+          .map((s, i) => `
+            <div style="display:flex;gap:8px;align-items:center;
+              margin-bottom:6px;font-size:14px">
+              <span style="min-width:80px">${s} =</span>
+              <input type="text" class="isian-inline" name="k2_${i}" placeholder="?">
+            </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 3: Pangkat Negatif',
+      html: `
+        <div class="isian-label">Ubah ke bentuk pecahan:</div>
+        ${['2<sup>&minus;3</sup>','5<sup>&minus;2</sup>','10<sup>&minus;1</sup>','3<sup>&minus;4</sup>']
+          .map((s, i) => `
+            <div class="isian-group">
+              <div class="isian-label">${s} = 1/... = </div>
+              <input type="text" class="isian-input" name="k3_${i}" placeholder="Jawaban">
+            </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 4: Cek Pemahaman',
+      html: generateSoalPGHTML('lkpd3a', [
+        { soal: 'Nilai dari 6<sup>0</sup> adalah ...',
+          opsi: ['0','1','6','60'] },
+        { soal: 'Nilai dari 2<sup>&minus;4</sup> adalah ...',
+          opsi: ['&minus;8','&minus;16','1/8','1/16'] },
+        { soal: 'Bentuk pecahan dari 7<sup>&minus;2</sup> adalah ...',
+          opsi: ['1/14','1/49','&minus;49','&minus;14'] }
+      ])
+    }
+  ]
+},
+
+'3_2': {
+  judul: 'LKPD Sedang - Pangkat Nol dan Pangkat Negatif',
+  kegiatan: [
+    {
+      nama: 'Kegiatan 1: Sederhanakan dengan Pangkat Nol',
+      html: `
+        ${['a<sup>0</sup> &times; a<sup>3</sup>',
+           'x<sup>3</sup> &divide; x<sup>3</sup>',
+           '3<sup>0</sup> &times; 4<sup>0</sup> &times; 5']
+          .map((s, i) => `
+            <div class="isian-group">
+              <div class="isian-label">${s} =</div>
+              <input type="text" class="isian-input" name="k1_${i}" placeholder="Jawaban">
+            </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 2: Ubah ke Bentuk Positif',
+      html: `
+        ${['a<sup>&minus;3</sup>','3x<sup>&minus;2</sup>',
+           '4a<sup>&minus;1</sup>b<sup>&minus;2</sup>','(2x)<sup>&minus;3</sup>']
+          .map((s, i) => `
+            <div class="isian-group">
+              <div class="isian-label">${s} =</div>
+              <input type="text" class="isian-input" name="k2_${i}" placeholder="Jawaban">
+            </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 3: Sederhanakan Lengkap',
+      html: `
+        ${['b<sup>&minus;2</sup> &times; b<sup>5</sup>',
+           '(2a<sup>&minus;1</sup>)<sup>2</sup>',
+           'a<sup>&minus;2</sup> &times; (a<sup>3</sup>)<sup>2</sup>']
+          .map((s, i) => `
+            <div class="isian-group">
+              <div class="isian-label">${s} =</div>
+              <input type="text" class="isian-input" name="k3_${i}" placeholder="Jawaban">
+            </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 4: Soal Kontekstual',
+      html: `
+        <div class="isian-group">
+          <div class="isian-label">
+            Massa virus = 10<sup>&minus;6</sup> gram.
+            Jika ada 10<sup>3</sup> virus, berapa total massanya?
+            Nyatakan dalam bentuk berpangkat!
+          </div>
+          <input type="text" class="isian-input" name="k4_1"
+            placeholder="Total massa = ...">
+        </div>`
+    }
+  ]
+},
+
+'3_3': {
+  judul: 'LKPD HOTS - Pangkat Nol dan Pangkat Negatif',
+  kegiatan: [
+    {
+      nama: 'Kegiatan 1: Penyederhanaan Kompleks',
+      html: `
+        ${[
+          '(a<sup>&minus;2</sup>b<sup>3</sup>)<sup>&minus;1</sup> &times; (a<sup>3</sup>b<sup>&minus;2</sup>)<sup>2</sup>',
+          '(2<sup>&minus;1</sup> + 3<sup>&minus;1</sup>)<sup>2</sup>'
+        ].map((s, i) => `
+          <div class="isian-group">
+            <div class="isian-label">Sederhanakan: ${s}</div>
+            <textarea class="isian-input" name="k1_${i}" rows="3"
+              placeholder="Tulis langkah penyelesaianmu..."></textarea>
+          </div>`).join('')}`
+    },
+    {
+      nama: 'Kegiatan 2: Pembuktian',
+      html: `
+        <div class="isian-group">
+          <div class="isian-label">
+            Buktikan bahwa (a/b)<sup>&minus;n</sup> = (b/a)<sup>n</sup>
+          </div>
+          <textarea class="isian-input" name="k2_1" rows="4"
+            placeholder="Tulis pembuktianmu..."></textarea>
+        </div>`
+    },
+    {
+      nama: 'Kegiatan 3: Penerapan Tinggi',
+      html: `
+        <div class="isian-group">
+          <div class="isian-label">
+            Jika 2<sup>x</sup> = 8 dan 3<sup>y</sup> = 1/9, tentukan nilai x + y!
+          </div>
+          <textarea class="isian-input" name="k3_1" rows="4"
+            placeholder="Tulis langkah penyelesaianmu..."></textarea>
+        </div>`
+    },
+    {
+      nama: 'Kegiatan 4: Evaluasi',
+      html: `
+        <div class="isian-group">
+          <div class="isian-label">
+            Jelaskan mengapa 0<sup>0</sup> tidak terdefinisi!
+            Gunakan minimal 2 cara berbeda.
+          </div>
+          <textarea class="isian-input" name="k4_1" rows="5"
+            placeholder="Tulis penjelasanmu..."></textarea>
+        </div>`
+    }
+  ]
+}
+
+}; // end LKPD
+
+// ============================================
+// GENERATE SOAL PG
+// ============================================
+
+function generateSoalPGHTML(prefix, soalArr) {
+  return soalArr.map((s, i) => `
+    <div style="padding:12px;background:var(--bg);
+      border-radius:var(--radius-sm);margin-bottom:8px">
+      <div class="text-sm mb-8">${i+1}. ${s.soal}</div>
+      <div>
+        ${s.opsi.map((o, j) => {
+          const h = ['A','B','C','D'][j];
+          return `
+            <label style="display:flex;gap:8px;
+              align-items:center;padding:6px 0;
+              font-size:14px;cursor:pointer">
+              <input type="radio" name="${prefix}_${i}" value="${h}">
+              <span>${h}. ${o}</span>
+            </label>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ============================================
+// INIT
+// ============================================
+
+window.onload = function() {
+  document.getElementById('headerP').textContent =
+    `Pertemuan ${pertemuan}`;
+
+  const key = `${pertemuan}_${level}`;
+  const lkpd = LKPD[key];
+
+  const lv = CONFIG.LEVEL[level];
+  document.getElementById('badgeP').textContent = `P${pertemuan}`;
+  document.getElementById('badgeLevel').textContent =
+    `Level ${level} - ${lv?.nama || ''}`;
+  document.getElementById('badgeLevel').style.background =
+    `${lv?.warna}15`;
+  document.getElementById('badgeLevel').style.color = lv?.warna;
+
+  if (!lkpd) {
+    document.getElementById('konten').innerHTML = `
+      <div class="alert alert-error" style="margin-top:12px">
+        <div class="alert-icon">!</div>
+        <div>LKPD tidak ditemukan untuk Level ${level} Pertemuan ${pertemuan}</div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('konten').innerHTML = `
+    <div class="alert alert-info" style="margin-top:12px">
+      <div class="alert-icon">i</div>
+      <div>
+        <strong>${lkpd.judul}</strong><br>
+        <span class="text-xs">
+          Kerjakan secara mandiri. Isi semua kolom jawaban.
+        </span>
+      </div>
+    </div>
+    ${lkpd.kegiatan.map(k => `
+      <div class="kegiatan-card">
+        <div class="kegiatan-title">${k.nama}</div>
+        ${k.html}
+      </div>`).join('')}
+    <div style="height:60px"></div>`;
+
+  document.getElementById('btnSubmitWrap').style.display = 'block';
+};
+
+// ============================================
+// SUBMIT LKPD
+// ============================================
+
+async function submitLKPD() {
+  // Kumpulkan semua jawaban
+  const inputs = document.querySelectorAll(
+    '#konten input, #konten textarea, #konten select');
+  const jawaban = {};
+  inputs.forEach(inp => {
+    if (inp.name) {
+      if (inp.type === 'radio') {
+        if (inp.checked) jawaban[inp.name] = inp.value;
+      } else {
+        jawaban[inp.name] = inp.value;
+      }
+    }
+  });
+
+  // Cek minimal ada jawaban
+  const terisi = Object.values(jawaban).filter(v => v).length;
+  if (terisi === 0) {
+    APP.showToast('Isi minimal 1 jawaban terlebih dahulu', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = 'Menyimpan...';
+
+  const res = await API.simpanLKPD(
+    nama, pertemuan, level, jawaban);
+
+  if (res.status === 'success') {
+    APP.showToast('LKPD berhasil disimpan');
+    setTimeout(() => APP.goTo('dashboard.html'), 1000);
+  } else {
+    APP.showToast(res.message || 'Gagal menyimpan', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Kumpulkan LKPD';
+  }
+}
+
+function konfirmasiKeluar() {
+  const inputs = document.querySelectorAll(
+    '#konten input, #konten textarea');
+  let adaIsi = false;
+  inputs.forEach(i => { if (i.value) adaIsi = true; });
+
+  if (adaIsi) {
+    if (!confirm('Jawaban belum disimpan. Yakin keluar?')) return;
+  }
+  APP.goTo('dashboard.html');
+}
+
+</script>
+</body>
+</html>
