@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0,
+    viewport-fit=cover">
+  <meta name="theme-color" content="#1565C0">
+  <title>Materi - Bilangan Berpangkat</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .tab-bar {
+      display: flex;
+      background: var(--white);
+      border-bottom: 2px solid var(--border);
+      position: sticky;
+      top: 57px;
+      z-index: 50;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tab-item {
+      flex: 1;
+      min-width: 80px;
+      padding: 12px 8px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-hint);
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      font-family: var(--font);
+    }
+    .tab-item.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .tab-item:active {
+      background: var(--primary-light);
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .example-box {
+      background: #F5F7FF;
+      border: 1px solid #C5CAE9;
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      margin: 10px 0;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .example-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #3949AB;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .table-compact {
+      width: 100%;
+      font-size: 13px;
+      border-collapse: collapse;
+      margin: 10px 0;
+    }
+    .table-compact th {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 8px 10px;
+      text-align: center;
+      font-size: 12px;
+    }
+    .table-compact td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: center;
+    }
+    .step-list {
+      counter-reset: step;
+      list-style: none;
+      padding: 0;
+    }
+    .step-list li {
+      counter-increment: step;
+      padding: 10px 10px 10px 40px;
+      position: relative;
+      font-size: 14px;
+      line-height: 1.6;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .step-list li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 26px;
+      height: 26px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .kuis-box {
+      border: 2px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin: 16px 0;
+    }
+    .kuis-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .kuis-feedback {
+      padding: 10px 14px;
+      border-radius: var(--radius-xs);
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+      line-height: 1.5;
+    }
+    .kuis-feedback.show { display: block; }
+    .kuis-feedback.benar {
+      background: var(--success-light);
+      color: var(--success);
+    }
+    .kuis-feedback.salah {
+      background: var(--error-light);
+      color: var(--error);
+    }
+    .btn-selesai-sesi {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px;
+      padding-bottom: calc(12px + env(safe-area-inset-bottom));
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      z-index: 100;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-sub">Stasiun Online</div>
+    <div class="header-title" id="headerP">-</div>
+  </div>
+  <button class="btn-back"
+    onclick="APP.goTo('dashboard.html')">
+    Kembali
+  </button>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar" id="tabBar">
+  <button class="tab-item active" onclick="switchTab(0)">
+    Materi
+  </button>
+  <button class="tab-item" onclick="switchTab(1)">
+    Interaktif
+  </button>
+  <button class="tab-item" onclick="switchTab(2)">
+    Kuis
+  </button>
+</div>
+
+<!-- KONTEN -->
+<div class="container" id="konten" style="padding-bottom:80px">
+  <div class="loading" style="margin-top:40px">
+    <div class="spinner"></div>
+    <div class="loading-text">Memuat materi...</div>
+  </div>
+</div>
+
+<!-- TOMBOL SELESAI -->
+<div class="btn-selesai-sesi" id="btnSelesaiWrap" 
+  style="display:none">
+  <button class="btn btn-success" onclick="selesaiSesi()">
+    Tandai Sesi Online Selesai
+  </button>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/main.js"></script>
+<script>
+
+if (!APP.requireLogin()) {};
+const nama = APP.getSiswa();
+const pertemuan = parseInt(APP.getPertemuan()) || 1;
+const level = parseInt(APP.getLevel()) || 1;
+
+const params = new URLSearchParams(window.location.search);
+const sesiNo = params.get('sesi') || '1';
+
+// ============================================
+// DATA MATERI PER PERTEMUAN
+// ============================================
+
+const MATERI = {
+  1: {
+    judul: 'Pengertian dan Bentuk Umum Bilangan Berpangkat',
+    tab_materi: `
+      <div class="materi-heading">Apa itu Bilangan Berpangkat?</div>
+      <div class="materi-text">
+        Bilangan berpangkat adalah cara penulisan yang lebih 
+        efisien untuk <strong>perkalian berulang</strong> 
+        dari bilangan yang sama.
+      </div>
+
+      <div class="formula">
+        a<sup>n</sup> = a &times; a &times; a &times; &hellip; &times; a
+        <br>
+        <span style="font-size:12px;color:var(--text-hint)">
+          sebanyak n kali
+        </span>
+      </div>
+
+      <div class="materi-heading">Bagian-Bagian</div>
+      <div class="example-box">
+        <div style="text-align:center;font-size:28px;
+          margin-bottom:8px">
+          2<sup>5</sup>
+        </div>
+        <table class="table-compact" style="max-width:280px;
+          margin:0 auto">
+          <tr>
+            <th>Komponen</th>
+            <th>Nilai</th>
+            <th>Arti</th>
+          </tr>
+          <tr>
+            <td><strong>Basis</strong></td>
+            <td>2</td>
+            <td>Bilangan pokok</td>
+          </tr>
+          <tr>
+            <td><strong>Eksponen</strong></td>
+            <td>5</td>
+            <td>Banyak perkalian</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="materi-heading">Cara Menghitung</div>
+      <ol class="step-list">
+        <li>Tentukan basis dan eksponen</li>
+        <li>Kalikan basis sebanyak eksponen kali</li>
+        <li>Hitung hasilnya</li>
+      </ol>
+
+      <div class="example-box">
+        <div class="example-label">Contoh 1</div>
+        2<sup>4</sup> = 2 &times; 2 &times; 2 &times; 2 = 16
+      </div>
+
+      <div class="example-box">
+        <div class="example-label">Contoh 2</div>
+        3<sup>3</sup> = 3 &times; 3 &times; 3 = 27
+      </div>
+
+      <div class="example-box">
+        <div class="example-label">Contoh 3 (Basis Negatif)</div>
+        (&minus;2)<sup>3</sup> = (&minus;2) &times; (&minus;2) &times; (&minus;2) = &minus;8
+        <br>
+        (&minus;2)<sup>4</sup> = (&minus;2) &times; (&minus;2) &times; (&minus;2) &times; (&minus;2) = 16
+      </div>
+
+      <div class="info-box penting">
+        <strong>Penting:</strong><br>
+        Basis negatif + pangkat <strong>genap</strong> = hasil positif<br>
+        Basis negatif + pangkat <strong>ganjil</strong> = hasil negatif
+      </div>
+
+      <div class="materi-heading">Contoh Kontekstual</div>
+
+      <div class="example-box">
+        <div class="example-label">Luas Persegi</div>
+        Persegi sisi 5 cm:<br>
+        Luas = 5 &times; 5 = 5<sup>2</sup> = 25 cm<sup>2</sup>
+      </div>
+
+      <div class="example-box">
+        <div class="example-label">Volume Kubus</div>
+        Kubus rusuk 3 cm:<br>
+        Volume = 3 &times; 3 &times; 3 = 3<sup>3</sup> = 27 cm<sup>3</sup>
+      </div>
+
+      <div class="materi-heading">Tabel Nilai Perpangkatan</div>
+      <div style="overflow-x:auto">
+        <table class="table-compact">
+          <tr>
+            <th>n</th><th>2<sup>n</sup></th>
+            <th>3<sup>n</sup></th><th>4<sup>n</sup></th>
+            <th>5<sup>n</sup></th>
+          </tr>
+          <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+          <tr><td>2</td><td>4</td><td>9</td><td>16</td><td>25</td></tr>
+          <tr><td>3</td><td>8</td><td>27</td><td>64</td><td>125</td></tr>
+          <tr><td>4</td><td>16</td><td>81</td><td>256</td><td>625</td></tr>
+          <tr><td>5</td><td>32</td><td>243</td><td>1024</td><td>3125</td></tr>
+        </table>
+      </div>
+    `,
+
+    tab_interaktif: `
+      <div class="materi-heading">Kalkulator Pangkat</div>
+      <div class="interaktif">
+        <div class="interaktif-title">Hitung a<sup>n</sup></div>
+        <div class="input-row">
+          <span>Basis (a):</span>
+          <input type="number" class="input-num" id="intBasis" value="2">
+          <span>Eksponen (n):</span>
+          <input type="number" class="input-num" id="intEksponen" value="3" min="0" max="10">
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="hitungPangkat()">
+          Hitung
+        </button>
+        <div class="result-display mt-8" id="hasilPangkat">
+          Masukkan nilai lalu klik Hitung
+        </div>
+      </div>
+
+      <div class="materi-heading">Identifikasi Basis dan Eksponen</div>
+      <div class="interaktif" id="interaktif2">
+        <div class="interaktif-title">Tentukan komponen</div>
+        <div id="soalIdentifikasi"></div>
+      </div>
+    `,
+
+    tab_kuis: generateKuisHTML(1)
+  },
+
+  2: {
+    judul: 'Sifat-Sifat Bilangan Berpangkat',
+    tab_materi: `
+      <div class="materi-heading">5 Sifat Bilangan Berpangkat</div>
+
+      <div style="overflow-x:auto">
+        <table class="table-compact">
+          <tr>
+            <th>No</th><th>Nama Sifat</th><th>Rumus</th>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td style="text-align:left">Perkalian pangkat</td>
+            <td>a<sup>m</sup> &times; a<sup>n</sup> = a<sup>m+n</sup></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td style="text-align:left">Pembagian pangkat</td>
+            <td>a<sup>m</sup> &divide; a<sup>n</sup> = a<sup>m&minus;n</sup></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td style="text-align:left">Pangkat dari pangkat</td>
+            <td>(a<sup>m</sup>)<sup>n</sup> = a<sup>mn</sup></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td style="text-align:left">Pangkat dari perkalian</td>
+            <td>(ab)<sup>n</sup> = a<sup>n</sup>b<sup>n</sup></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td style="text-align:left">Pangkat dari pembagian</td>
+            <td>(a/b)<sup>n</sup> = a<sup>n</sup>/b<sup>n</sup></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="materi-heading">Sifat 1: Perkalian Pangkat</div>
+      <div class="formula">
+        a<sup>m</sup> &times; a<sup>n</sup> = a<sup>m+n</sup>
+        <br><span style="font-size:12px;color:var(--text-hint)">
+          Syarat: basis harus sama</span>
+      </div>
+      <div class="example-box">
+        <div class="example-label">Bukti</div>
+        2<sup>3</sup> &times; 2<sup>4</sup><br>
+        = (2&times;2&times;2) &times; (2&times;2&times;2&times;2)<br>
+        = 2&times;2&times;2&times;2&times;2&times;2&times;2<br>
+        = 2<sup>7</sup> = 2<sup>3+4</sup>
+      </div>
+
+      <div class="materi-heading">Sifat 2: Pembagian Pangkat</div>
+      <div class="formula">
+        a<sup>m</sup> &divide; a<sup>n</sup> = a<sup>m&minus;n</sup>
+      </div>
+      <div class="example-box">
+        <div class="example-label">Contoh</div>
+        5<sup>7</sup> &divide; 5<sup>3</sup> = 5<sup>7&minus;3</sup> = 5<sup>4</sup>
+      </div>
+
+      <div class="materi-heading">Sifat 3: Pangkat dari Pangkat</div>
+      <div class="formula">
+        (a<sup>m</sup>)<sup>n</sup> = a<sup>mn</sup>
+      </div>
+      <div class="example-box">
+        <div class="example-label">Contoh</div>
+        (2<sup>3</sup>)<sup>4</sup> = 2<sup>3&times;4</sup> = 2<sup>12</sup>
+      </div>
+
+      <div class="materi-heading">Sifat 4: Pangkat dari Perkalian</div>
+      <div class="formula">
+        (ab)<sup>n</sup> = a<sup>n</sup> &times; b<sup>n</sup>
+      </div>
+      <div class="example-box">
+        <div class="example-label">Contoh</div>
+        (2x)<sup>3</sup> = 2<sup>3</sup> &times; x<sup>3</sup> = 8x<sup>3</sup>
+      </div>
+
+      <div class="materi-heading">Sifat 5: Pangkat dari Pembagian</div>
+      <div class="formula">
+        (a/b)<sup>n</sup> = a<sup>n</sup>/b<sup>n</sup>
+      </div>
+      <div class="example-box">
+        <div class="example-label">Contoh</div>
+        (x/y)<sup>3</sup> = x<sup>3</sup>/y<sup>3</sup>
+      </div>
+
+      <div class="info-box penting">
+        <strong>Perhatian:</strong><br>
+        Sifat 1 dan 2 hanya berlaku jika <strong>basis sama</strong>.<br>
+        2<sup>3</sup> &times; 3<sup>4</sup> &ne; 6<sup>7</sup> (salah!)
+      </div>
+
+      <div class="materi-heading">Kombinasi Sifat</div>
+      <div class="example-box">
+        <div class="example-label">Contoh Kombinasi</div>
+        (2a<sup>2</sup>)<sup>3</sup><br>
+        = 2<sup>3</sup> &times; (a<sup>2</sup>)<sup>3</sup>
+        <span style="color:var(--text-hint)">&larr; Sifat 4</span><br>
+        = 8 &times; a<sup>6</sup>
+        <span style="color:var(--text-hint)">&larr; Sifat 3</span><br>
+        = 8a<sup>6</sup>
+      </div>
+    `,
+
+    tab_interaktif: `
+      <div class="materi-heading">Simulasi Sifat Perkalian</div>
+      <div class="interaktif">
+        <div class="interaktif-title">
+          a<sup>m</sup> &times; a<sup>n</sup> = a<sup>m+n</sup>
+        </div>
+        <div class="input-row">
+          <span>Basis:</span>
+          <input type="number" class="input-num" id="s2Basis" value="2">
+          <span>m:</span>
+          <input type="number" class="input-num" id="s2M" value="3" min="0" max="10">
+          <span>n:</span>
+          <input type="number" class="input-num" id="s2N" value="4" min="0" max="10">
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="simulasiSifat1()">
+          Lihat Hasil
+        </button>
+        <div class="result-display mt-8" id="hasilSifat1">
+          Masukkan nilai lalu klik Lihat Hasil
+        </div>
+      </div>
+
+      <div class="materi-heading">Pilih Sifat yang Digunakan</div>
+      <div class="interaktif" id="interaktifSifat">
+        <div class="interaktif-title">Identifikasi sifat</div>
+        <div id="soalSifat"></div>
+      </div>
+    `,
+
+    tab_kuis: generateKuisHTML(2)
+  },
+
+  3: {
+    judul: 'Pangkat Nol dan Pangkat Negatif',
+    tab_materi: `
+      <div class="materi-heading">Pangkat Nol</div>
+      <div class="materi-text">
+        Dari sifat pembagian, jika m = n maka:
+      </div>
+      <div class="formula">
+        a<sup>n</sup> &divide; a<sup>n</sup> = a<sup>n&minus;n</sup> = a<sup>0</sup>
+        <br>
+        a<sup>n</sup> &divide; a<sup>n</sup> = 1
+        <br><br>
+        <strong>Maka: a<sup>0</sup> = 1</strong>
+        <br><span style="font-size:12px;color:var(--text-hint)">
+          untuk semua a &ne; 0</span>
+      </div>
+
+      <div class="example-box">
+        <div class="example-label">Pola</div>
+        <table class="table-compact" style="max-width:200px;margin:0 auto">
+          <tr><td>2<sup>4</sup></td><td>= 16</td></tr>
+          <tr><td>2<sup>3</sup></td><td>= 8 (&divide;2)</td></tr>
+          <tr><td>2<sup>2</sup></td><td>= 4 (&divide;2)</td></tr>
+          <tr><td>2<sup>1</sup></td><td>= 2 (&divide;2)</td></tr>
+          <tr><td>2<sup>0</sup></td><td>= <strong>1</strong> (&divide;2)</td></tr>
+        </table>
+      </div>
+
+      <div class="example-box">
+        <div class="example-label">Contoh</div>
+        5<sup>0</sup> = 1 &emsp;
+        7<sup>0</sup> = 1 &emsp;
+        (&minus;3)<sup>0</sup> = 1 &emsp;
+        100<sup>0</sup> = 1
+      </div>
+
+      <div class="info-box penting">
+        <strong>Catatan:</strong> 0<sup>0</sup> tidak terdefinisi
+      </div>
+
+      <div class="materi-heading">Pangkat Negatif</div>
+      <div class="materi-text">
+        Jika m &lt; n pada sifat pembagian:
+      </div>
+      <div class="formula">
+        a<sup>&minus;n</sup> = 1/a<sup>n</sup>
+        <br><span style="font-size:12px;color:var(--text-hint)">
+          untuk a &ne; 0</span>
+      </div>
+
+      <div class="example-box">
+        <div class="example-label">Bukti</div>
+        a<sup>2</sup> &divide; a<sup>5</sup> = a<sup>2&minus;5</sup> = a<sup>&minus;3</sup><br>
+        a<sup>2</sup> &divide; a<sup>5</sup> = 1/a<sup>3</sup><br>
+        <strong>Maka: a<sup>&minus;3</sup> = 1/a<sup>3</sup></strong>
+      </div>
+
+      <div class="example-box">
+        <div class="example-label">Pola Lanjutan</div>
+        <table class="table-compact" style="max-width:250px;margin:0 auto">
+          <tr><td>2<sup>0</sup></td><td>= 1</td></tr>
+          <tr><td>2<sup>&minus;1</sup></td><td>= 1/2 (&divide;2)</td></tr>
+          <tr><td>2<sup>&minus;2</sup></td><td>= 1/4 = 1/2<sup>2</sup></td></tr>
+          <tr><td>2<sup>&minus;3</sup></td><td>= 1/8 = 1/2<sup>3</sup></td></tr>
+        </table>
+      </div>
+
+      <div class="example-box">
+        <div class="example-label">Contoh Perhitungan</div>
+        2<sup>&minus;3</sup> = 1/2<sup>3</sup> = 1/8<br>
+        3<sup>&minus;2</sup> = 1/3<sup>2</sup> = 1/9<br>
+        5<sup>&minus;1</sup> = 1/5
+      </div>
+
+      <div class="materi-heading">Konversi Bentuk</div>
+      <div class="formula">
+        a<sup>&minus;n</sup> &harr; 1/a<sup>n</sup>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table class="table-compact">
+          <tr><th>Pangkat Negatif</th><th>Bentuk Pecahan</th></tr>
+          <tr><td>4<sup>&minus;2</sup></td><td>1/16</td></tr>
+          <tr><td>x<sup>&minus;3</sup></td><td>1/x<sup>3</sup></td></tr>
+          <tr><td>2a<sup>&minus;1</sup></td><td>2/a</td></tr>
+          <tr><td>3x<sup>&minus;2</sup>y</td><td>3y/x<sup>2</sup></td></tr>
+        </table>
+      </div>
+
+      <div class="materi-heading">Penerapan Gabungan</div>
+      <div class="example-box">
+        <div class="example-label">Contoh 1</div>
+        a<sup>&minus;2</sup> &times; a<sup>5</sup> = a<sup>&minus;2+5</sup> = a<sup>3</sup>
+      </div>
+      <div class="example-box">
+        <div class="example-label">Contoh 2</div>
+        (2x<sup>&minus;1</sup>)<sup>3</sup> = 2<sup>3</sup> &times; x<sup>&minus;3</sup> = 8/x<sup>3</sup>
+      </div>
+
+      <div class="materi-heading">Rangkuman Lengkap</div>
+      <div style="overflow-x:auto">
+        <table class="table-compact">
+          <tr><th>Sifat</th><th>Rumus</th></tr>
+          <tr><td>Definisi</td><td>a<sup>n</sup> = a &times; a &times; &hellip; (n kali)</td></tr>
+          <tr><td>Sifat 1</td><td>a<sup>m</sup> &times; a<sup>n</sup> = a<sup>m+n</sup></td></tr>
+          <tr><td>Sifat 2</td><td>a<sup>m</sup> &divide; a<sup>n</sup> = a<sup>m&minus;n</sup></td></tr>
+          <tr><td>Sifat 3</td><td>(a<sup>m</sup>)<sup>n</sup> = a<sup>mn</sup></td></tr>
+          <tr><td>Sifat 4</td><td>(ab)<sup>n</sup> = a<sup>n</sup>b<sup>n</sup></td></tr>
+          <tr><td>Sifat 5</td><td>(a/b)<sup>n</sup> = a<sup>n</sup>/b<sup>n</sup></td></tr>
+          <tr><td>Pangkat Nol</td><td>a<sup>0</sup> = 1</td></tr>
+          <tr><td>Pangkat Negatif</td><td>a<sup>&minus;n</sup> = 1/a<sup>n</sup></td></tr>
+        </table>
+      </div>
+    `,
+
+    tab_interaktif: `
+      <div class="materi-heading">Simulasi Pola Pangkat</div>
+      <div class="interaktif">
+        <div class="interaktif-title">Lihat pola dari positif ke negatif</div>
+        <div class="input-row">
+          <span>Basis:</span>
+          <input type="number" class="input-num" id="s3Basis" value="2" min="2" max="10">
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="simulasiPola()">
+          Tampilkan Pola
+        </button>
+        <div class="result-display mt-8" id="hasilPola">
+          Klik tombol untuk melihat pola
+        </div>
+      </div>
+
+      <div class="materi-heading">Konverter Pangkat Negatif</div>
+      <div class="interaktif">
+        <div class="interaktif-title">Ubah a<sup>&minus;n</sup> ke 1/a<sup>n</sup></div>
+        <div class="input-row">
+          <span>Basis:</span>
+          <input type="number" class="input-num" id="konvBasis" value="3">
+          <span>Eksponen (negatif):</span>
+          <input type="number" class="input-num" id="konvEksp" value="-2" max="0">
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="konversiPangkat()">
+          Konversi
+        </button>
+        <div class="result-display mt-8" id="hasilKonversi">
+          Klik tombol untuk melihat hasil
+        </div>
+      </div>
+    `,
+
+    tab_kuis: generateKuisHTML(3)
+  }
+};
+
+// ============================================
+// DATA KUIS PER PERTEMUAN
+// ============================================
+
+const KUIS = {
+  1: [
+    { soal: 'Bentuk berpangkat dari 4 &times; 4 &times; 4 &times; 4 adalah ...',
+      opsi: ['4 &times; 4','4<sup>4</sup>','4 + 4','44'],
+      kunci: 1, feedback_b: 'Perkalian berulang 4 sebanyak 4 kali = 4 pangkat 4.',
+      feedback_s: 'Hitung berapa kali angka 4 muncul dalam perkalian.' },
+    { soal: 'Nilai dari 2<sup>5</sup> adalah ...',
+      opsi: ['10','16','32','64'],
+      kunci: 2, feedback_b: '2 pangkat 5 = 2&times;2&times;2&times;2&times;2 = 32.',
+      feedback_s: 'Kalikan 2 sebanyak 5 kali: 2&times;2&times;2&times;2&times;2.' },
+    { soal: 'Eksponen dari 9<sup>3</sup> adalah ...',
+      opsi: ['3','9','27','93'],
+      kunci: 0, feedback_b: 'Pada a pangkat n, eksponen adalah angka di atas yaitu 3.',
+      feedback_s: 'Eksponen adalah angka kecil di atas (pangkat).' },
+    { soal: 'Nilai dari (&minus;3)<sup>2</sup> adalah ...',
+      opsi: ['&minus;9','&minus;6','6','9'],
+      kunci: 3, feedback_b: 'Negatif dikali negatif = positif. (&minus;3)&times;(&minus;3) = 9.',
+      feedback_s: 'Ingat: negatif dikali negatif hasilnya positif.' },
+    { soal: 'Luas persegi sisi 7 cm dalam bentuk berpangkat adalah ...',
+      opsi: ['7 &times; 2','2<sup>7</sup>','7<sup>2</sup>','14'],
+      kunci: 2, feedback_b: 'Luas persegi = sisi pangkat 2 = 7 pangkat 2.',
+      feedback_s: 'Luas persegi = sisi &times; sisi = sisi pangkat 2.' }
+  ],
+  2: [
+    { soal: 'Hasil dari a<sup>4</sup> &times; a<sup>6</sup> adalah ...',
+      opsi: ['a<sup>10</sup>','a<sup>24</sup>','2a<sup>10</sup>','a<sup>2</sup>'],
+      kunci: 0, feedback_b: 'Sifat 1: eksponen dijumlahkan. 4+6 = 10.',
+      feedback_s: 'Gunakan Sifat 1: a pangkat m dikali a pangkat n = a pangkat m+n.' },
+    { soal: 'Hasil dari x<sup>7</sup> &divide; x<sup>3</sup> adalah ...',
+      opsi: ['x<sup>4</sup>','x<sup>10</sup>','x<sup>21</sup>','x<sup>3</sup>'],
+      kunci: 0, feedback_b: 'Sifat 2: eksponen dikurangkan. 7&minus;3 = 4.',
+      feedback_s: 'Gunakan Sifat 2: eksponen dikurangkan.' },
+    { soal: 'Hasil dari (a<sup>3</sup>)<sup>4</sup> adalah ...',
+      opsi: ['a<sup>7</sup>','a<sup>12</sup>','4a<sup>3</sup>','a<sup>34</sup>'],
+      kunci: 1, feedback_b: 'Sifat 3: eksponen dikalikan. 3&times;4 = 12.',
+      feedback_s: 'Gunakan Sifat 3: eksponen dikalikan.' },
+    { soal: 'Hasil dari (3x)<sup>2</sup> adalah ...',
+      opsi: ['3x<sup>2</sup>','6x<sup>2</sup>','9x<sup>2</sup>','9x'],
+      kunci: 2, feedback_b: 'Sifat 4: (3x) pangkat 2 = 9 dikali x pangkat 2.',
+      feedback_s: 'Gunakan Sifat 4: semua faktor dipangkatkan.' },
+    { soal: 'Bentuk sederhana dari a<sup>2</sup> &times; a<sup>3</sup> &divide; a adalah ...',
+      opsi: ['a<sup>4</sup>','a<sup>6</sup>','a<sup>5</sup>','a'],
+      kunci: 0, feedback_b: 'a pangkat 2+3&minus;1 = a pangkat 4.',
+      feedback_s: 'Gunakan sifat 1 dan 2 berurutan: 2+3&minus;1 = 4.' }
+  ],
+  3: [
+    { soal: 'Nilai dari 8<sup>0</sup> adalah ...',
+      opsi: ['0','1','8','80'],
+      kunci: 1, feedback_b: 'Setiap bilangan bukan nol berpangkat 0 hasilnya 1.',
+      feedback_s: 'Ingat: a pangkat 0 = 1 untuk semua a bukan nol.' },
+    { soal: 'Nilai dari 3<sup>&minus;3</sup> adalah ...',
+      opsi: ['&minus;27','&minus;9','1/9','1/27'],
+      kunci: 3, feedback_b: '3 pangkat minus 3 = 1 per 3 pangkat 3 = 1/27.',
+      feedback_s: 'Gunakan rumus: a pangkat minus n = 1 per a pangkat n.' },
+    { soal: 'Bentuk positif dari 2x<sup>&minus;3</sup> adalah ...',
+      opsi: ['2/x<sup>3</sup>','&minus;2x<sup>3</sup>','x<sup>3</sup>/2','2x<sup>3</sup>'],
+      kunci: 0, feedback_b: 'Hanya x yang berpangkat negatif, jadi 2 dikali 1 per x pangkat 3.',
+      feedback_s: 'Hanya x yang berpangkat negatif, bukan angka 2.' },
+    { soal: 'Hasil dari a<sup>&minus;2</sup> &times; a<sup>6</sup> adalah ...',
+      opsi: ['a<sup>&minus;12</sup>','a<sup>4</sup>','a<sup>8</sup>','a<sup>&minus;4</sup>'],
+      kunci: 1, feedback_b: 'Sifat 1: &minus;2 + 6 = 4. Jadi a pangkat 4.',
+      feedback_s: 'Gunakan Sifat 1: eksponen dijumlahkan. &minus;2 + 6 = 4.' },
+    { soal: 'Hasil dari (3a<sup>&minus;1</sup>)<sup>2</sup> adalah ...',
+      opsi: ['9a<sup>2</sup>','9/a<sup>2</sup>','6/a<sup>2</sup>','6a<sup>2</sup>'],
+      kunci: 1, feedback_b: '3 pangkat 2 = 9 dan a pangkat minus 2 = 1 per a pangkat 2.',
+      feedback_s: 'Gunakan Sifat 4, lalu konversi pangkat negatif.' }
+  ]
+};
+
+// ============================================
+// GENERATE KUIS HTML
+// ============================================
+
+function generateKuisHTML(p) {
+  const soalList = KUIS[p];
+  return `
+    <div class="materi-heading">Kuis Singkat</div>
+    <div class="alert alert-info">
+      <div class="alert-icon">i</div>
+      <div>Jawab ${soalList.length} soal berikut. Feedback langsung muncul setelah memilih jawaban.</div>
+    </div>
+    ${soalList.map((s, i) => `
+      <div class="kuis-box" id="kuis${i}">
+        <div class="kuis-title">Soal ${i+1}</div>
+        <div class="soal-text">${s.soal}</div>
+        <ul class="opsi-list">
+          ${s.opsi.map((o, j) => {
+            const h = ['A','B','C','D'][j];
+            return `
+              <li class="opsi-item">
+                <input type="radio" name="kuis${i}"
+                  id="k${i}o${j}" value="${j}"
+                  onchange="cekKuis(${i},${j})">
+                <label class="opsi-label" for="k${i}o${j}">
+                  <span class="opsi-letter">${h}</span>
+                  <span>${o}</span>
+                </label>
+              </li>`;
+          }).join('')}
+        </ul>
+        <div class="kuis-feedback" id="fb${i}"></div>
+      </div>`).join('')}
+  `;
+}
+
+// ============================================
+// INIT
+// ============================================
+
+window.onload = function() {
+  document.getElementById('headerP').textContent =
+    `Pertemuan ${pertemuan}`;
+
+  const m = MATERI[pertemuan];
+  if (!m) {
+    document.getElementById('konten').innerHTML =
+      '<div class="alert alert-error"><div class="alert-icon">!</div><div>Materi tidak ditemukan</div></div>';
+    return;
+  }
+
+  document.getElementById('konten').innerHTML = `
+    <div class="tab-content active" id="tab0">${m.tab_materi}</div>
+    <div class="tab-content" id="tab1">${m.tab_interaktif}</div>
+    <div class="tab-content" id="tab2">${m.tab_kuis}</div>
+  `;
+
+  document.getElementById('btnSelesaiWrap').style.display = 'block';
+
+  if (pertemuan === 1) initInteraktif1();
+  if (pertemuan === 2) initInteraktif2();
+};
+
+// ============================================
+// TAB SWITCHING
+// ============================================
+
+function switchTab(idx) {
+  document.querySelectorAll('.tab-item').forEach((t, i) => {
+    t.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.tab-content').forEach((c, i) => {
+    c.classList.toggle('active', i === idx);
+  });
+  window.scrollTo(0, 0);
+}
+
+// ============================================
+// INTERAKTIF P1
+// ============================================
+
+function hitungPangkat() {
+  const a = parseFloat(document.getElementById('intBasis').value);
+  const n = parseInt(document.getElementById('intEksponen').value);
+  if (isNaN(a) || isNaN(n) || n < 0 || n > 10) {
+    document.getElementById('hasilPangkat').innerHTML = 'Masukkan nilai yang valid (eksponen 0-10)';
+    return;
+  }
+  const hasil = Math.pow(a, n);
+  let jabar = '';
+  for (let i = 0; i < n; i++) {
+    jabar += a;
+    if (i < n - 1) jabar += ' &times; ';
+  }
+  if (n === 0) jabar = '1 (apapun pangkat 0 = 1)';
+  document.getElementById('hasilPangkat').innerHTML =
+    `${a}<sup>${n}</sup> = ${jabar} = <strong>${hasil}</strong>`;
+}
+
+const IDENTIFIKASI = [
+  { bentuk: '6<sup>4</sup>', basis: 6, eksponen: 4 },
+  { bentuk: '10<sup>3</sup>', basis: 10, eksponen: 3 },
+  { bentuk: '5<sup>2</sup>', basis: 5, eksponen: 2 },
+  { bentuk: '7<sup>6</sup>', basis: 7, eksponen: 6 }
+];
+let idxIdentifikasi = 0;
+
+function initInteraktif1() {
+  tampilIdentifikasi();
+}
+
+function tampilIdentifikasi() {
+  const s = IDENTIFIKASI[idxIdentifikasi];
+  document.getElementById('soalIdentifikasi').innerHTML = `
+    <div style="text-align:center;font-size:32px;margin:16px 0">
+      ${s.bentuk}
+    </div>
+    <div class="input-row" style="justify-content:center">
+      <span>Basis =</span>
+      <input type="number" class="input-num" id="jawabBasis">
+      <span>Eksponen =</span>
+      <input type="number" class="input-num" id="jawabEksp">
+    </div>
+    <button class="btn btn-primary btn-sm" style="margin:8px auto;display:block"
+      onclick="cekIdentifikasi()">Cek Jawaban</button>
+    <div id="feedbackIdentifikasi" class="mt-8"></div>`;
+}
+
+function cekIdentifikasi() {
+  const s = IDENTIFIKASI[idxIdentifikasi];
+  const b = parseInt(document.getElementById('jawabBasis').value);
+  const e = parseInt(document.getElementById('jawabEksp').value);
+  const fb = document.getElementById('feedbackIdentifikasi');
+  if (b === s.basis && e === s.eksponen) {
+    fb.innerHTML = `<div class="alert alert-success"><div class="alert-icon">V</div><div>Benar! Basis = ${s.basis}, Eksponen = ${s.eksponen}</div></div>`;
+    idxIdentifikasi = (idxIdentifikasi + 1) % IDENTIFIKASI.length;
+    setTimeout(tampilIdentifikasi, 1500);
+  } else {
+    fb.innerHTML = `<div class="alert alert-error"><div class="alert-icon">X</div><div>Belum tepat. Coba lagi!</div></div>`;
+  }
+}
+
+// ============================================
+// INTERAKTIF P2
+// ============================================
+
+function simulasiSifat1() {
+  const a = parseInt(document.getElementById('s2Basis').value);
+  const m = parseInt(document.getElementById('s2M').value);
+  const n = parseInt(document.getElementById('s2N').value);
+  if (isNaN(a) || isNaN(m) || isNaN(n)) return;
+
+  let jabar1 = '', jabar2 = '', jabarGabung = '';
+  for (let i = 0; i < m; i++) { jabar1 += a; if (i < m-1) jabar1 += '&times;'; }
+  for (let i = 0; i < n; i++) { jabar2 += a; if (i < n-1) jabar2 += '&times;'; }
+  for (let i = 0; i < m+n; i++) { jabarGabung += a; if (i < m+n-1) jabarGabung += '&times;'; }
+
+  document.getElementById('hasilSifat1').innerHTML = `
+    ${a}<sup>${m}</sup> &times; ${a}<sup>${n}</sup><br>
+    = (${jabar1}) &times; (${jabar2})<br>
+    = ${jabarGabung}<br>
+    = ${a}<sup>${m+n}</sup> = <strong>${Math.pow(a,m+n)}</strong><br><br>
+    <span style="color:var(--primary)">Eksponen dijumlahkan: ${m} + ${n} = ${m+n}</span>`;
+}
+
+const SOAL_SIFAT = [
+  { soal: '5<sup>3</sup> &times; 5<sup>4</sup> = 5<sup>7</sup>', jawaban: 'Sifat 1 (Perkalian)', sifat: 1 },
+  { soal: '4<sup>6</sup> &divide; 4<sup>2</sup> = 4<sup>4</sup>', jawaban: 'Sifat 2 (Pembagian)', sifat: 2 },
+  { soal: '(a<sup>2</sup>)<sup>5</sup> = a<sup>10</sup>', jawaban: 'Sifat 3 (Pangkat dari Pangkat)', sifat: 3 },
+  { soal: '(2x)<sup>4</sup> = 16x<sup>4</sup>', jawaban: 'Sifat 4 (Pangkat dari Perkalian)', sifat: 4 }
+];
+let idxSifat = 0;
+
+function initInteraktif2() {
+  tampilSoalSifat();
+}
+
+function tampilSoalSifat() {
+  const s = SOAL_SIFAT[idxSifat];
+  document.getElementById('soalSifat').innerHTML = `
+    <div class="formula" style="margin:12px 0">${s.soal}</div>
+    <div class="text-sm mb-8">Sifat mana yang digunakan?</div>
+    ${['Sifat 1 (Perkalian)','Sifat 2 (Pembagian)','Sifat 3 (Pangkat dari Pangkat)','Sifat 4 (Pangkat dari Perkalian)']
+      .map((opt, i) => `
+        <div class="refleksi-option" onclick="cekSifat(this,${i+1},${s.sifat})">
+          <span class="refleksi-dot"></span>
+          <span>${opt}</span>
+        </div>`).join('')}
+    <div id="fbSifat" class="mt-8"></div>`;
+}
+
+function cekSifat(el, pilihan, benar) {
+  const fb = document.getElementById('fbSifat');
+  if (pilihan === benar) {
+    document.querySelectorAll('#interaktifSifat .refleksi-option')
+      .forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    fb.innerHTML = `<div class="alert alert-success"><div class="alert-icon">V</div><div>Benar! ${SOAL_SIFAT[idxSifat].jawaban}</div></div>`;
+    idxSifat = (idxSifat + 1) % SOAL_SIFAT.length;
+    setTimeout(tampilSoalSifat, 1500);
+  } else {
+    fb.innerHTML = `<div class="alert alert-error"><div class="alert-icon">X</div><div>Belum tepat. Coba lagi!</div></div>`;
+  }
+}
+
+// ============================================
+// INTERAKTIF P3
+// ============================================
+
+function simulasiPola() {
+  const a = parseInt(document.getElementById('s3Basis').value);
+  if (isNaN(a) || a < 2 || a > 10) return;
+  let html = '<table class="table-compact" style="max-width:300px;margin:0 auto">';
+  html += '<tr><th>n</th><th>' + a + '<sup>n</sup></th><th>Nilai</th></tr>';
+  for (let n = 4; n >= -3; n--) {
+    const val = Math.pow(a, n);
+    const display = n < 0 ? `1/${Math.pow(a, Math.abs(n))}` : val;
+    html += `<tr><td>${n}</td><td>${a}<sup>${n}</sup></td><td>${display}</td></tr>`;
+  }
+  html += '</table>';
+  document.getElementById('hasilPola').innerHTML = html;
+}
+
+function konversiPangkat() {
+  const a = parseInt(document.getElementById('konvBasis').value);
+  const n = parseInt(document.getElementById('konvEksp').value);
+  if (isNaN(a) || isNaN(n) || n >= 0) {
+    document.getElementById('hasilKonversi').innerHTML = 'Eksponen harus negatif';
+    return;
+  }
+  const pos = Math.abs(n);
+  const nilai = Math.pow(a, pos);
+  document.getElementById('hasilKonversi').innerHTML = `
+    ${a}<sup>${n}</sup> = 1/${a}<sup>${pos}</sup> = <strong>1/${nilai}</strong>`;
+}
+
+// ============================================
+// KUIS
+// ============================================
+
+const kuisAnswered = {};
+
+function cekKuis(noSoal, pilihan) {
+  if (kuisAnswered[noSoal]) return;
+  kuisAnswered[noSoal] = true;
+
+  const s = KUIS[pertemuan][noSoal];
+  const fb = document.getElementById(`fb${noSoal}`);
+  const benar = pilihan === s.kunci;
+
+  fb.className = `kuis-feedback show ${benar ? 'benar' : 'salah'}`;
+  fb.innerHTML = benar ? s.feedback_b : s.feedback_s;
+
+  // Disable semua radio untuk soal ini
+  document.querySelectorAll(`input[name="kuis${noSoal}"]`)
+    .forEach(r => r.disabled = true);
+}
+
+// ============================================
+// SELESAI SESI
+// ============================================
+
+async function selesaiSesi() {
+  const btn = document.querySelector('#btnSelesaiWrap .btn');
+  btn.disabled = true;
+  btn.textContent = 'Menyimpan...';
+
+  // Tentukan sesi mana yang online
+  const jadwalLevel = CONFIG.JADWAL[level];
+  let sesiOnline = null;
+  if (jadwalLevel) {
+    ['sesi1','sesi2','sesi3'].forEach((key, idx) => {
+      const val = jadwalLevel[key].toLowerCase();
+      if (val.includes('online') || val.includes('pengayaan')) {
+        sesiOnline = `sesi${idx + 1}`;
+      }
+    });
+  }
+
+  if (sesiOnline) {
+    await API.updateProgress(nama, pertemuan, sesiOnline, 'Selesai');
+  }
+
+  APP.showToast('Sesi Online selesai');
+  setTimeout(() => APP.goTo('dashboard.html'), 1000);
+}
+
+</script>
+</body>
+</html>
