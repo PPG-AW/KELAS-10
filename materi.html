@@ -216,7 +216,117 @@ const params = new URLSearchParams(window.location.search);
 const sesiNo = params.get('sesi') || '1';
 
 // ============================================
-// DATA MATERI PER PERTEMUAN
+// 1. DATA KUIS - HARUS DEKLARASI DULUAN
+// ============================================
+
+const KUIS = {
+  1: [
+    { soal: 'Bentuk berpangkat dari 4 &times; 4 &times; 4 &times; 4 adalah ...',
+      opsi: ['4 &times; 4','4<sup>4</sup>','4 + 4','44'],
+      kunci: 1, feedback_b: 'Perkalian berulang 4 sebanyak 4 kali = 4 pangkat 4.',
+      feedback_s: 'Hitung berapa kali angka 4 muncul dalam perkalian.' },
+    { soal: 'Nilai dari 2<sup>5</sup> adalah ...',
+      opsi: ['10','16','32','64'],
+      kunci: 2, feedback_b: '2 pangkat 5 = 2&times;2&times;2&times;2&times;2 = 32.',
+      feedback_s: 'Kalikan 2 sebanyak 5 kali: 2&times;2&times;2&times;2&times;2.' },
+    { soal: 'Eksponen dari 9<sup>3</sup> adalah ...',
+      opsi: ['3','9','27','93'],
+      kunci: 0, feedback_b: 'Pada a pangkat n, eksponen adalah angka di atas yaitu 3.',
+      feedback_s: 'Eksponen adalah angka kecil di atas (pangkat).' },
+    { soal: 'Nilai dari (&minus;3)<sup>2</sup> adalah ...',
+      opsi: ['&minus;9','&minus;6','6','9'],
+      kunci: 3, feedback_b: 'Negatif dikali negatif = positif. (&minus;3)&times;(&minus;3) = 9.',
+      feedback_s: 'Ingat: negatif dikali negatif hasilnya positif.' },
+    { soal: 'Luas persegi sisi 7 cm dalam bentuk berpangkat adalah ...',
+      opsi: ['7 &times; 2','2<sup>7</sup>','7<sup>2</sup>','14'],
+      kunci: 2, feedback_b: 'Luas persegi = sisi pangkat 2 = 7 pangkat 2.',
+      feedback_s: 'Luas persegi = sisi &times; sisi = sisi pangkat 2.' }
+  ],
+  2: [
+    { soal: 'Hasil dari a<sup>4</sup> &times; a<sup>6</sup> adalah ...',
+      opsi: ['a<sup>10</sup>','a<sup>24</sup>','2a<sup>10</sup>','a<sup>2</sup>'],
+      kunci: 0, feedback_b: 'Sifat 1: eksponen dijumlahkan. 4+6 = 10.',
+      feedback_s: 'Gunakan Sifat 1: a pangkat m dikali a pangkat n = a pangkat m+n.' },
+    { soal: 'Hasil dari x<sup>7</sup> &divide; x<sup>3</sup> adalah ...',
+      opsi: ['x<sup>4</sup>','x<sup>10</sup>','x<sup>21</sup>','x<sup>3</sup>'],
+      kunci: 0, feedback_b: 'Sifat 2: eksponen dikurangkan. 7&minus;3 = 4.',
+      feedback_s: 'Gunakan Sifat 2: eksponen dikurangkan.' },
+    { soal: 'Hasil dari (a<sup>3</sup>)<sup>4</sup> adalah ...',
+      opsi: ['a<sup>7</sup>','a<sup>12</sup>','4a<sup>3</sup>','a<sup>34</sup>'],
+      kunci: 1, feedback_b: 'Sifat 3: eksponen dikalikan. 3&times;4 = 12.',
+      feedback_s: 'Gunakan Sifat 3: eksponen dikalikan.' },
+    { soal: 'Hasil dari (3x)<sup>2</sup> adalah ...',
+      opsi: ['3x<sup>2</sup>','6x<sup>2</sup>','9x<sup>2</sup>','9x'],
+      kunci: 2, feedback_b: 'Sifat 4: (3x) pangkat 2 = 9 dikali x pangkat 2.',
+      feedback_s: 'Gunakan Sifat 4: semua faktor dipangkatkan.' },
+    { soal: 'Bentuk sederhana dari a<sup>2</sup> &times; a<sup>3</sup> &divide; a adalah ...',
+      opsi: ['a<sup>4</sup>','a<sup>6</sup>','a<sup>5</sup>','a'],
+      kunci: 0, feedback_b: 'a pangkat 2+3&minus;1 = a pangkat 4.',
+      feedback_s: 'Gunakan sifat 1 dan 2 berurutan: 2+3&minus;1 = 4.' }
+  ],
+  3: [
+    { soal: 'Nilai dari 8<sup>0</sup> adalah ...',
+      opsi: ['0','1','8','80'],
+      kunci: 1, feedback_b: 'Setiap bilangan bukan nol berpangkat 0 hasilnya 1.',
+      feedback_s: 'Ingat: a pangkat 0 = 1 untuk semua a bukan nol.' },
+    { soal: 'Nilai dari 3<sup>&minus;3</sup> adalah ...',
+      opsi: ['&minus;27','&minus;9','1/9','1/27'],
+      kunci: 3, feedback_b: '3 pangkat minus 3 = 1 per 3 pangkat 3 = 1/27.',
+      feedback_s: 'Gunakan rumus: a pangkat minus n = 1 per a pangkat n.' },
+    { soal: 'Bentuk positif dari 2x<sup>&minus;3</sup> adalah ...',
+      opsi: ['2/x<sup>3</sup>','&minus;2x<sup>3</sup>','x<sup>3</sup>/2','2x<sup>3</sup>'],
+      kunci: 0, feedback_b: 'Hanya x yang berpangkat negatif, jadi 2 dikali 1 per x pangkat 3.',
+      feedback_s: 'Hanya x yang berpangkat negatif, bukan angka 2.' },
+    { soal: 'Hasil dari a<sup>&minus;2</sup> &times; a<sup>6</sup> adalah ...',
+      opsi: ['a<sup>&minus;12</sup>','a<sup>4</sup>','a<sup>8</sup>','a<sup>&minus;4</sup>'],
+      kunci: 1, feedback_b: 'Sifat 1: &minus;2 + 6 = 4. Jadi a pangkat 4.',
+      feedback_s: 'Gunakan Sifat 1: eksponen dijumlahkan. &minus;2 + 6 = 4.' },
+    { soal: 'Hasil dari (3a<sup>&minus;1</sup>)<sup>2</sup> adalah ...',
+      opsi: ['9a<sup>2</sup>','9/a<sup>2</sup>','6/a<sup>2</sup>','6a<sup>2</sup>'],
+      kunci: 1, feedback_b: '3 pangkat 2 = 9 dan a pangkat minus 2 = 1 per a pangkat 2.',
+      feedback_s: 'Gunakan Sifat 4, lalu konversi pangkat negatif.' }
+  ]
+};
+
+// ============================================
+// 2. GENERATE KUIS HTML
+// ============================================
+
+function generateKuisHTML(p) {
+  const soalList = KUIS[p];
+  if (!soalList) return '<div class="text-hint">Tidak ada kuis</div>';
+  return `
+    <div class="materi-heading">Kuis Singkat</div>
+    <div class="alert alert-info">
+      <div class="alert-icon">i</div>
+      <div>Jawab ${soalList.length} soal berikut. Feedback langsung muncul setelah memilih jawaban.</div>
+    </div>
+    ${soalList.map((s, i) => `
+      <div class="kuis-box" id="kuis${i}">
+        <div class="kuis-title">Soal ${i+1}</div>
+        <div class="soal-text">${s.soal}</div>
+        <ul class="opsi-list">
+          ${s.opsi.map((o, j) => {
+            const h = ['A','B','C','D'][j];
+            return `
+              <li class="opsi-item">
+                <input type="radio" name="kuis${i}"
+                  id="k${i}o${j}" value="${j}"
+                  onchange="cekKuis(${i},${j})">
+                <label class="opsi-label" for="k${i}o${j}">
+                  <span class="opsi-letter">${h}</span>
+                  <span>${o}</span>
+                </label>
+              </li>`;
+          }).join('')}
+        </ul>
+        <div class="kuis-feedback" id="fb${i}"></div>
+      </div>`).join('')}
+  `;
+}
+
+// ============================================
+// 3. DATA MATERI PER PERTEMUAN
 // ============================================
 
 const MATERI = {
@@ -645,116 +755,7 @@ const MATERI = {
 };
 
 // ============================================
-// DATA KUIS PER PERTEMUAN
-// ============================================
-
-const KUIS = {
-  1: [
-    { soal: 'Bentuk berpangkat dari 4 &times; 4 &times; 4 &times; 4 adalah ...',
-      opsi: ['4 &times; 4','4<sup>4</sup>','4 + 4','44'],
-      kunci: 1, feedback_b: 'Perkalian berulang 4 sebanyak 4 kali = 4 pangkat 4.',
-      feedback_s: 'Hitung berapa kali angka 4 muncul dalam perkalian.' },
-    { soal: 'Nilai dari 2<sup>5</sup> adalah ...',
-      opsi: ['10','16','32','64'],
-      kunci: 2, feedback_b: '2 pangkat 5 = 2&times;2&times;2&times;2&times;2 = 32.',
-      feedback_s: 'Kalikan 2 sebanyak 5 kali: 2&times;2&times;2&times;2&times;2.' },
-    { soal: 'Eksponen dari 9<sup>3</sup> adalah ...',
-      opsi: ['3','9','27','93'],
-      kunci: 0, feedback_b: 'Pada a pangkat n, eksponen adalah angka di atas yaitu 3.',
-      feedback_s: 'Eksponen adalah angka kecil di atas (pangkat).' },
-    { soal: 'Nilai dari (&minus;3)<sup>2</sup> adalah ...',
-      opsi: ['&minus;9','&minus;6','6','9'],
-      kunci: 3, feedback_b: 'Negatif dikali negatif = positif. (&minus;3)&times;(&minus;3) = 9.',
-      feedback_s: 'Ingat: negatif dikali negatif hasilnya positif.' },
-    { soal: 'Luas persegi sisi 7 cm dalam bentuk berpangkat adalah ...',
-      opsi: ['7 &times; 2','2<sup>7</sup>','7<sup>2</sup>','14'],
-      kunci: 2, feedback_b: 'Luas persegi = sisi pangkat 2 = 7 pangkat 2.',
-      feedback_s: 'Luas persegi = sisi &times; sisi = sisi pangkat 2.' }
-  ],
-  2: [
-    { soal: 'Hasil dari a<sup>4</sup> &times; a<sup>6</sup> adalah ...',
-      opsi: ['a<sup>10</sup>','a<sup>24</sup>','2a<sup>10</sup>','a<sup>2</sup>'],
-      kunci: 0, feedback_b: 'Sifat 1: eksponen dijumlahkan. 4+6 = 10.',
-      feedback_s: 'Gunakan Sifat 1: a pangkat m dikali a pangkat n = a pangkat m+n.' },
-    { soal: 'Hasil dari x<sup>7</sup> &divide; x<sup>3</sup> adalah ...',
-      opsi: ['x<sup>4</sup>','x<sup>10</sup>','x<sup>21</sup>','x<sup>3</sup>'],
-      kunci: 0, feedback_b: 'Sifat 2: eksponen dikurangkan. 7&minus;3 = 4.',
-      feedback_s: 'Gunakan Sifat 2: eksponen dikurangkan.' },
-    { soal: 'Hasil dari (a<sup>3</sup>)<sup>4</sup> adalah ...',
-      opsi: ['a<sup>7</sup>','a<sup>12</sup>','4a<sup>3</sup>','a<sup>34</sup>'],
-      kunci: 1, feedback_b: 'Sifat 3: eksponen dikalikan. 3&times;4 = 12.',
-      feedback_s: 'Gunakan Sifat 3: eksponen dikalikan.' },
-    { soal: 'Hasil dari (3x)<sup>2</sup> adalah ...',
-      opsi: ['3x<sup>2</sup>','6x<sup>2</sup>','9x<sup>2</sup>','9x'],
-      kunci: 2, feedback_b: 'Sifat 4: (3x) pangkat 2 = 9 dikali x pangkat 2.',
-      feedback_s: 'Gunakan Sifat 4: semua faktor dipangkatkan.' },
-    { soal: 'Bentuk sederhana dari a<sup>2</sup> &times; a<sup>3</sup> &divide; a adalah ...',
-      opsi: ['a<sup>4</sup>','a<sup>6</sup>','a<sup>5</sup>','a'],
-      kunci: 0, feedback_b: 'a pangkat 2+3&minus;1 = a pangkat 4.',
-      feedback_s: 'Gunakan sifat 1 dan 2 berurutan: 2+3&minus;1 = 4.' }
-  ],
-  3: [
-    { soal: 'Nilai dari 8<sup>0</sup> adalah ...',
-      opsi: ['0','1','8','80'],
-      kunci: 1, feedback_b: 'Setiap bilangan bukan nol berpangkat 0 hasilnya 1.',
-      feedback_s: 'Ingat: a pangkat 0 = 1 untuk semua a bukan nol.' },
-    { soal: 'Nilai dari 3<sup>&minus;3</sup> adalah ...',
-      opsi: ['&minus;27','&minus;9','1/9','1/27'],
-      kunci: 3, feedback_b: '3 pangkat minus 3 = 1 per 3 pangkat 3 = 1/27.',
-      feedback_s: 'Gunakan rumus: a pangkat minus n = 1 per a pangkat n.' },
-    { soal: 'Bentuk positif dari 2x<sup>&minus;3</sup> adalah ...',
-      opsi: ['2/x<sup>3</sup>','&minus;2x<sup>3</sup>','x<sup>3</sup>/2','2x<sup>3</sup>'],
-      kunci: 0, feedback_b: 'Hanya x yang berpangkat negatif, jadi 2 dikali 1 per x pangkat 3.',
-      feedback_s: 'Hanya x yang berpangkat negatif, bukan angka 2.' },
-    { soal: 'Hasil dari a<sup>&minus;2</sup> &times; a<sup>6</sup> adalah ...',
-      opsi: ['a<sup>&minus;12</sup>','a<sup>4</sup>','a<sup>8</sup>','a<sup>&minus;4</sup>'],
-      kunci: 1, feedback_b: 'Sifat 1: &minus;2 + 6 = 4. Jadi a pangkat 4.',
-      feedback_s: 'Gunakan Sifat 1: eksponen dijumlahkan. &minus;2 + 6 = 4.' },
-    { soal: 'Hasil dari (3a<sup>&minus;1</sup>)<sup>2</sup> adalah ...',
-      opsi: ['9a<sup>2</sup>','9/a<sup>2</sup>','6/a<sup>2</sup>','6a<sup>2</sup>'],
-      kunci: 1, feedback_b: '3 pangkat 2 = 9 dan a pangkat minus 2 = 1 per a pangkat 2.',
-      feedback_s: 'Gunakan Sifat 4, lalu konversi pangkat negatif.' }
-  ]
-};
-
-// ============================================
-// GENERATE KUIS HTML
-// ============================================
-
-function generateKuisHTML(p) {
-  const soalList = KUIS[p];
-  return `
-    <div class="materi-heading">Kuis Singkat</div>
-    <div class="alert alert-info">
-      <div class="alert-icon">i</div>
-      <div>Jawab ${soalList.length} soal berikut. Feedback langsung muncul setelah memilih jawaban.</div>
-    </div>
-    ${soalList.map((s, i) => `
-      <div class="kuis-box" id="kuis${i}">
-        <div class="kuis-title">Soal ${i+1}</div>
-        <div class="soal-text">${s.soal}</div>
-        <ul class="opsi-list">
-          ${s.opsi.map((o, j) => {
-            const h = ['A','B','C','D'][j];
-            return `
-              <li class="opsi-item">
-                <input type="radio" name="kuis${i}"
-                  id="k${i}o${j}" value="${j}"
-                  onchange="cekKuis(${i},${j})">
-                <label class="opsi-label" for="k${i}o${j}">
-                  <span class="opsi-letter">${h}</span>
-                  <span>${o}</span>
-                </label>
-              </li>`;
-          }).join('')}
-        </ul>
-        <div class="kuis-feedback" id="fb${i}"></div>
-      </div>`).join('')}
-  `;
-}
-
-// ============================================
-// INIT
+// 4. INIT
 // ============================================
 
 window.onload = function() {
@@ -970,7 +971,6 @@ function cekKuis(noSoal, pilihan) {
   fb.className = `kuis-feedback show ${benar ? 'benar' : 'salah'}`;
   fb.innerHTML = benar ? s.feedback_b : s.feedback_s;
 
-  // Disable semua radio untuk soal ini
   document.querySelectorAll(`input[name="kuis${noSoal}"]`)
     .forEach(r => r.disabled = true);
 }
@@ -984,7 +984,6 @@ async function selesaiSesi() {
   btn.disabled = true;
   btn.textContent = 'Menyimpan...';
 
-  // Tentukan sesi mana yang online
   const jadwalLevel = CONFIG.JADWAL[level];
   let sesiOnline = null;
   if (jadwalLevel) {
